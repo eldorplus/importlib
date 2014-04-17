@@ -9,7 +9,8 @@ import types
 
 def import_importlib(module_name):
     """Import a module from importlib both w/ and w/o _frozen_importlib."""
-    fresh = ('importlib',) if '.' in module_name else ()
+    module_name = module_name.replace('importlib', 'importlib2')
+    fresh = ('importlib2',) if '.' in module_name else ()
     frozen = support.import_fresh_module(module_name)
     source = support.import_fresh_module(module_name, fresh=fresh,
                                          blocked=('_frozen_importlib',))
