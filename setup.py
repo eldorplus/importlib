@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 import os
 from importlib import import_module
 from distutils.core import setup
