@@ -1,4 +1,6 @@
 """A pure Python implementation of import."""
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __all__ = ['__import__', 'import_module', 'invalidate_caches', 'reload']
 
 __version__ = (0, 1, 0)

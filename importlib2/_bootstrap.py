@@ -6,6 +6,7 @@ such it requires the injection of specific modules and attributes in order to
 work. One should use importlib as the public-facing version of this module.
 
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
 #
 # IMPORTANT: Whenever making changes to this module, be sure to run
 # a top-level make in order to get the frozen version of the module

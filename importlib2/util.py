@@ -1,4 +1,6 @@
 """Utility code for constructing importers, etc."""
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from . import abc
 from ._bootstrap import MAGIC_NUMBER
 from ._bootstrap import cache_from_source
