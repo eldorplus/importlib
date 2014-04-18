@@ -2142,6 +2142,7 @@ def _find_spec(name, path, target=None):
             else:
                 spec = find_spec(name, path, target)
         if spec is not None:
+            print(finder, type(spec))
             # The parent import may have already imported this module.
             if not is_reload and name in sys.modules:
                 module = sys.modules[name]
