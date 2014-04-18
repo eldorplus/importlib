@@ -2142,7 +2142,6 @@ def _find_spec(name, path, target=None):
             else:
                 spec = find_spec(name, path, target)
         if spec is not None:
-            print(finder, type(spec))
             # The parent import may have already imported this module.
             if not is_reload and name in sys.modules:
                 module = sys.modules[name]
@@ -2431,7 +2430,7 @@ def _setup(sys_module, _imp_module):
 
 def _install(sys_module, _imp_module):
     """Install importlib as the implementation of import."""
-    _setup(sys_module, _imp_module)
+#    _setup(sys_module, _imp_module)
     supported_loaders = _get_supported_file_loaders()
     sys.path_hooks.extend([FileFinder.path_hook(*supported_loaders)])
     sys.meta_path.append(BuiltinImporter)
