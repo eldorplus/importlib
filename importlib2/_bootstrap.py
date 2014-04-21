@@ -2202,7 +2202,6 @@ def _find_and_load_unlocked(name, import_):
             raise ImportError(msg, name=name)
     spec = _find_spec(name, path)
     if spec is None:
-#        print(sys.meta_path)
         raise ImportError(_ERR_MSG.format(name), name=name)
     else:
         module = _SpecMethods(spec)._load_unlocked()
