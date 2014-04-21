@@ -2371,8 +2371,14 @@ def _setup(sys_module, _imp_module):
             else:
                 continue
             spec = _spec_from_module(module, loader)
-            methods = _SpecMethods(spec)
-            methods.init_module_attrs(module)
+            if name == '__main__':
+                if not hasattr(module, '__spec__'):
+                    module.__spec__ = spec
+                if not hasattr(module, '__loader__'):
+                    module.__loader__ = loader
+            else:
+                methods = _SpecMethods(spec)
+                methods.init_module_attrs(module)
 
     # Directly load built-in modules needed during bootstrap.
     self_module = sys.modules[__name__]

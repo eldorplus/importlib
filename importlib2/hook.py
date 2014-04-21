@@ -5,7 +5,7 @@ import os
 import sys
 
 from . import _bootstrap
-from ._containers import SequenceProxy, MappingProxy
+#from ._containers import SequenceProxy, MappingProxy
 
 
 @contextmanager
@@ -17,7 +17,8 @@ def _locked():
         _bootstrap._imp.release_lock()
 
 
-class MetapathWrapper(SequenceProxy, list):
+# Can't use SequenceProxy for 2.7/3.2. :(
+class MetapathWrapper(list):
 
     @classmethod
     def _get_old_defaults(cls, finders):
@@ -35,7 +36,10 @@ class MetapathWrapper(SequenceProxy, list):
         # Remove 3.4+ defaults from sys.meta_path.
         oldfinders = cls._get_old_defaults(finders)
         for finder in oldfinders:
-            finders.remove(finder)
+            if isinstance(finders, MetapathWrapper):
+                super(MetapathWrapper, finders).remove(finder)
+            else:
+                finders.remove(finder)
         return oldfinders
 
     @classmethod
@@ -47,50 +51,45 @@ class MetapathWrapper(SequenceProxy, list):
             finders.append(_bootstrap.WindowsRegistryFinder)
         finders.append(_bootstrap.PathFinder)
 
+    def __new__(cls, finders):
+        if isinstance(finders, MetapathWrapper):
+            return finders
+        else:
+            return super(MetapathWrapper, cls).__new__(cls, finders)
+
     def __init__(self, finders):
-        super(MetapathWrapper, self).__init__(finders, readonly=False)
+        if hasattr(self, '_finders'):
+            # Only run __init__ once.
+            return
+        super(MetapathWrapper, self).__init__(finders)
         self._finders = finders
         self._backportfinder = BackportFinder(finders)
+        super(MetapathWrapper, self).insert(0, self._backportfinder)
 
-        self._old = self._remove_old_defaults(finders)
-        self._add_default_finders(finders)
-
-    def __len__(self):
-        return super(MetapathWrapper, self).__len__() + 1
-
-    def __iter__(self):
-        yield self._backportfinder
-        for finder in self._finders:
-            yield finder
-
-    def __getitem__(self, index):
-        # XXX Use the Sequence equivalent of ChainMap?
-        if isinstance(index, slice):
-            #raise TypeError('slicing not supported')
-            finders = [self._backportfinder] + self._finders
-            return finders[index]
-        elif index == 0:
-            return self._backportfinder
-        else:
-            return super(MetapathWrapper, self).__getitem__(index - 1)
+        self._old = self._remove_old_defaults(self)
+        self._add_default_finders(self)
 
     def __setitem__(self, index, value):
         if isinstance(index, slice):
             raise TypeError('slicing not supported')
+        elif index < 0:
+            raise TypeError('negative index not supported')
         elif index == 0:
             raise IndexError('cannot replace backport finder')
             # XXX Or redirect to index 1.
         else:
-            super(MetapathWrapper, self).__setitem__(index - 1, value)
+            super(MetapathWrapper, self).__setitem__(index, value)
 
     def __delitem__(self, index):
         if isinstance(index, slice):
             raise TypeError('slicing not supported')
+        elif index < 0:
+            raise TypeError('negative index not supported')
         elif index == 0:
             raise IndexError('cannot remove backport finder')
             # XXX Or redirect to index 1.
         else:
-            super(MetapathWrapper, self).__delitem__(index - 1)
+            super(MetapathWrapper, self).__delitem__(index)
 
     @property
     def backportfinder(self):
@@ -99,10 +98,27 @@ class MetapathWrapper(SequenceProxy, list):
     def insert(self, index, value):
         if isinstance(index, slice):
             raise TypeError('slicing not supported')
+        elif index < 0:
+            raise TypeError('negative index not supported')
         if index == 0:
             # XXX Too sneaky?
             index = 1
-        super(MetapathWrapper, self).insert(index - 1, value)
+        super(MetapathWrapper, self).insert(index, value)
+
+    def remove(self, value):
+        if value is self._backportfinder:
+            raise TypeError('remove() not supported')
+        else:
+            super(MetapathWrapper, self).remove(value)
+
+    def pop(self, *args, **kwargs):
+        raise TypeError('pop() not supported')
+
+    def reverse(self, *args, **kwargs):
+        raise TypeError('reverse() not supported')
+
+    def sort(self, *args, **kwargs):
+        raise TypeError('sort() not supported')
 
 
 class BackportFinder(object):
@@ -158,7 +174,8 @@ class BackportLoader(object):
         return _bootstrap._SpecMethods(self._spec).load()
 
 
-class PathHooksWrapper(SequenceProxy, list):
+# Can't use SequenceProxy for 2.7/3.2. :(
+class PathHooksWrapper(list):
 
     @classmethod
     def _get_old_defaults(cls, hooks):
@@ -185,15 +202,29 @@ class PathHooksWrapper(SequenceProxy, list):
         hooks.extend([hook])
 
     def __init__(self, hooks):
-        super(PathHooksWrapper, self).__init__(hooks, readonly=False)
+        super(PathHooksWrapper, self).__init__(hooks)
         self._hooks = hooks
 
-        self._old = self._remove_old_defaults(hooks)
-        self._add_default_hooks(hooks)
+        self._old = self._remove_old_defaults(self)
+        self._add_default_hooks(self)
+
+
+def _install___import__():
+    from ._fixers import builtins
+    _import = builtins.__import__
+    def __import__(name, *args, **kwargs):
+        print(name)
+        return _import(name, *args, **kwargs)
+    builtins.__import__ = __import__
+
+
+def _install_finder():
+    sys.path_hooks = PathHooksWrapper(sys.path_hooks)
+    # XXX sys.path_importer_cache too?
+    sys.meta_path = MetapathWrapper(sys.meta_path)
 
 
 def install():
     with _locked():
-        sys.path_hooks = PathHooksWrapper(sys.path_hooks)
-        # XXX sys.path_importer_cache too?
-        sys.meta_path = MetapathWrapper(sys.meta_path)
+        #_install___import__()
+        _install_finder()

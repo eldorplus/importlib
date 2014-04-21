@@ -44,7 +44,7 @@ _fixers.fix_builtins()
 #    sys.modules['importlib._bootstrap'] = _bootstrap
 from . import _bootstrap
 _fixers.fix_bootstrap(_bootstrap)
-if not hasattr(_bootstrap, 'path_separators'):
+if not hasattr(_bootstrap, 'BYTECODE_SUFFIXES'):
     _bootstrap._setup(sys, _imp)
 
 # To simplify imports in test code
