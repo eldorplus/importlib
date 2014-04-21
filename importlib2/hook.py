@@ -17,7 +17,7 @@ def _locked():
         _bootstrap._imp.release_lock()
 
 
-class MetapathWrapper(SequenceProxy):
+class MetapathWrapper(SequenceProxy, list):
 
     @classmethod
     def _get_old_defaults(cls, finders):
@@ -158,7 +158,7 @@ class BackportLoader(object):
         return _bootstrap._SpecMethods(self._spec).load()
 
 
-class PathHooksWrapper(SequenceProxy):
+class PathHooksWrapper(SequenceProxy, list):
 
     @classmethod
     def _get_old_defaults(cls, hooks):

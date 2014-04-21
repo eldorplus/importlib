@@ -17,7 +17,10 @@ import warnings
 import unittest
 import importlib
 import importlib.util
-import collections.abc
+try:
+    from collections.abc import MutableMapping
+except ImportError:
+    from collections import MutableMapping
 import re
 import subprocess
 import time
@@ -1099,7 +1102,7 @@ class CleanImport(object):
         sys.modules.update(self.original_modules)
 
 
-class EnvironmentVarGuard(collections.abc.MutableMapping):
+class EnvironmentVarGuard(MutableMapping):
 
     """Class to help protect the environment variable properly.  Can be used as
     a context manager."""

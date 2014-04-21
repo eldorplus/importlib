@@ -2,7 +2,7 @@
 * Update to work under 2.7 and 3.2.
 * Add __future__ to all test modules.
 * Remove bootstrapping-related code.
-* Set up continuous integration (perhaps https://www.shiningpanda-ci.com/).
+* Set up continuous integration (perhaps https://www.shiningpanda-ci.com/ or https://travis-ci.org/).
 * Release 0.1.0.
 
 === Phase 2 ===

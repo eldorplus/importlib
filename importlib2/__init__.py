@@ -19,6 +19,12 @@ except ImportError:
     import imp as _imp
 import sys
 
+from . import _fixers
+_fixers.fix_imp(_imp)
+_fixers.fix_sys(sys)
+_fixers.fix_os()
+_fixers.fix_builtins()
+
 #try:
 #    import _frozen_importlib as _bootstrap
 #except ImportError:
@@ -37,7 +43,9 @@ import sys
 #        pass
 #    sys.modules['importlib._bootstrap'] = _bootstrap
 from . import _bootstrap
-_bootstrap._setup(sys, _imp)
+_fixers.fix_bootstrap(_bootstrap)
+if not hasattr(_bootstrap, 'path_separators'):
+    _bootstrap._setup(sys, _imp)
 
 # To simplify imports in test code
 _w_long = _bootstrap._w_long
