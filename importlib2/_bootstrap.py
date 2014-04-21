@@ -2123,15 +2123,17 @@ def _find_spec_legacy(finder, name, path):
     return spec_from_loader(name, loader)
 
 
-def _find_spec(name, path, target=None):
+def _find_spec(name, path, target=None, meta_path=None):
     """Find a module's loader."""
-    if not sys.meta_path:
+    if meta_path is None:
+        meta_path = sys.meta_path
+    if not meta_path:
         _warnings.warn('sys.meta_path is empty', ImportWarning)
     # We check sys.modules here for the reload case.  While a passed-in
     # target will usually indicate a reload there is no guarantee, whereas
     # sys.modules provides one.
     is_reload = name in sys.modules
-    for finder in sys.meta_path:
+    for finder in meta_path:
         with _ImportLockContext():
             try:
                 find_spec = finder.find_spec
@@ -2200,6 +2202,7 @@ def _find_and_load_unlocked(name, import_):
             raise ImportError(msg, name=name)
     spec = _find_spec(name, path)
     if spec is None:
+#        print(sys.meta_path)
         raise ImportError(_ERR_MSG.format(name), name=name)
     else:
         module = _SpecMethods(spec)._load_unlocked()
@@ -2430,7 +2433,7 @@ def _setup(sys_module, _imp_module):
 
 def _install(sys_module, _imp_module):
     """Install importlib as the implementation of import."""
-#    _setup(sys_module, _imp_module)
+    _setup(sys_module, _imp_module)
     supported_loaders = _get_supported_file_loaders()
     sys.path_hooks.extend([FileFinder.path_hook(*supported_loaders)])
     sys.meta_path.append(BuiltinImporter)
