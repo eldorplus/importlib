@@ -1,5 +1,8 @@
+from contextlib import contextmanager
 import os.path
 import sys
+import unittest
+
 
 TEST_ROOT = os.path.dirname(__file__)
 PROJECT_ROOT = os.path.dirname(TEST_ROOT)
@@ -16,6 +19,14 @@ def inject_importlib2():
     return importlib2
 
 
+def fix_unittest():
+    if not hasattr(unittest.TestCase, 'subTest'):
+        @contextmanager
+        def subTest(self, *args, **kwargs):
+            yield
+        unittest.TestCase.subTest = subTest
+
+
 # Swap in importlib2.
 importlib2 = inject_importlib2()
 
@@ -24,6 +35,9 @@ from . import support, lock_tests
 sys.modules['test'] = sys.modules[__name__]
 sys.modules['test.support'] = support
 sys.modules['test.lock_tests'] = lock_tests
+
+# Fix unittest.
+fix_unittest()
 
 # Install the hook.
 import importlib2.hook

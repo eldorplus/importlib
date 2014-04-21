@@ -6,6 +6,7 @@ from . import machinery
 try:
     import _frozen_importlib
 except ImportError as exc:
+    import sys
     if exc.name != '_frozen_importlib':
         raise
     _frozen_importlib = None

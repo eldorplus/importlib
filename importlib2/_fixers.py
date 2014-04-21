@@ -8,9 +8,11 @@ import sys
 NAME = 'cpython'
 
 
-#class ImportError(builtins.ImportError):
-#    def __init__(self, msg, *args, **kwarg):
-#        super(ImportError, self).__init__(msg)
+class NewImportError(builtins.ImportError):
+    def __init__(self, *args, **kwargs):
+        self.name = kwargs.pop('name', None)
+        self.path = kwargs.pop('path', None)
+        super(ImportError, self).__init__(*args, **kwargs)
 
 
 def fix_imp(_imp):
@@ -34,8 +36,9 @@ def fix_sys(sys):
 
 def fix_bootstrap(bootstrap):
     # XXX Inject _boostrap into _frozen_importlib (if it exists)?
-    sys.modules.setdefault('_frozen_importlib', bootstrap)
-#    bootstrap.NewImportError = ImportError
+    if not sys.modules.get('_frozen_importlib'):
+        sys.modules['_frozen_importlib'] = bootstrap
+    bootstrap.NewImportError = NewImportError
 
 
 def fix_os(os=None):

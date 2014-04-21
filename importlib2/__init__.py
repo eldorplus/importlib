@@ -98,9 +98,9 @@ def find_loader(name, path=None):
         return None
     if spec.loader is None:
         if spec.submodule_search_locations is None:
-            raise ImportError('spec for {} missing loader'.format(name),
+            raise _fixers.NewImportError('spec for {} missing loader'.format(name),
                               name=name)
-        raise ImportError('namespace packages do not have loaders',
+        raise _fixers.NewImportError('namespace packages do not have loaders',
                           name=name)
     return spec.loader
 
@@ -144,7 +144,7 @@ def reload(module):
 
     if sys.modules.get(name) is not module:
         msg = "module {} not in sys.modules"
-        raise ImportError(msg.format(name), name=name)
+        raise _fixers.NewImportError(msg.format(name), name=name)
     if name in _RELOADING:
         return _RELOADING[name]
     _RELOADING[name] = module
@@ -155,7 +155,7 @@ def reload(module):
                 parent = sys.modules[parent_name]
             except KeyError:
                 msg = "parent {!r} not in sys.modules"
-                raise ImportError(msg.format(parent_name), name=parent_name)
+                raise _fixers.NewImportError(msg.format(parent_name), name=parent_name)
             else:
                 pkgpath = parent.__path__
         else:

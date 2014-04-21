@@ -537,7 +537,7 @@ def _check_name(method):
         if name is None:
             name = self.name
         elif self.name != name:
-            raise ImportError('loader cannot handle %s' % name, name=name)
+            raise NewImportError('loader cannot handle %s' % name, name=name)
         return method(self, name, *args, **kwargs)
     _wrap(_check_name_wrapper, method)
     return _check_name_wrapper
@@ -547,7 +547,7 @@ def _requires_builtin(fxn):
     """Decorator to verify the named module is built-in."""
     def _requires_builtin_wrapper(self, fullname):
         if fullname not in sys.builtin_module_names:
-            raise ImportError('{!r} is not a built-in module'.format(fullname),
+            raise NewImportError('{!r} is not a built-in module'.format(fullname),
                               name=fullname)
         return fxn(self, fullname)
     _wrap(_requires_builtin_wrapper, fxn)
@@ -558,7 +558,7 @@ def _requires_frozen(fxn):
     """Decorator to verify the named module is frozen."""
     def _requires_frozen_wrapper(self, fullname):
         if not _imp.is_frozen(fullname):
-            raise ImportError('{!r} is not a frozen module'.format(fullname),
+            raise NewImportError('{!r} is not a frozen module'.format(fullname),
                               name=fullname)
         return fxn(self, fullname)
     _wrap(_requires_frozen_wrapper, fxn)
@@ -623,7 +623,7 @@ def _validate_bytecode_header(data, source_stats=None, name=None, path=None):
     if magic != MAGIC_NUMBER:
         message = 'bad magic number in {!r}: {!r}'.format(name, magic)
         _verbose_message(message)
-        raise ImportError(message, **exc_details)
+        raise NewImportError(message, **exc_details)
     elif len(raw_timestamp) != 4:
         message = 'reached EOF while reading timestamp in {!r}'.format(name)
         _verbose_message(message)
@@ -641,14 +641,14 @@ def _validate_bytecode_header(data, source_stats=None, name=None, path=None):
             if _r_long(raw_timestamp) != source_mtime:
                 message = 'bytecode is stale for {!r}'.format(name)
                 _verbose_message(message)
-                raise ImportError(message, **exc_details)
+                raise NewImportError(message, **exc_details)
         try:
             source_size = source_stats['size'] & 0xFFFFFFFF
         except KeyError:
             pass
         else:
             if _r_long(raw_size) != source_size:
-                raise ImportError('bytecode is stale for {!r}'.format(name),
+                raise NewImportError('bytecode is stale for {!r}'.format(name),
                                   **exc_details)
     return data[12:]
 
@@ -662,7 +662,7 @@ def _compile_bytecode(data, name=None, bytecode_path=None, source_path=None):
             _imp._fix_co_filename(code, source_path)
         return code
     else:
-        raise ImportError('Non-code object in {!r}'.format(bytecode_path),
+        raise NewImportError('Non-code object in {!r}'.format(bytecode_path),
                           name=name, path=bytecode_path)
 
 def _code_to_bytecode(code, mtime=0, source_size=0):
@@ -1138,10 +1138,10 @@ class _SpecMethods:
         with _ModuleLockManager(name):
             if sys.modules.get(name) is not module:
                 msg = 'module {!r} not in sys.modules'.format(name)
-                raise ImportError(msg, name=name)
+                raise NewImportError(msg, name=name)
             if self.spec.loader is None:
                 if self.spec.submodule_search_locations is None:
-                    raise ImportError('missing loader', name=self.spec.name)
+                    raise NewImportError('missing loader', name=self.spec.name)
                 # namespace package
                 self.init_module_attrs(module, _override=True)
                 return module
@@ -1196,7 +1196,7 @@ class _SpecMethods:
         with _installed_safely(module):
             if self.spec.loader is None:
                 if self.spec.submodule_search_locations is None:
-                    raise ImportError('missing loader', name=self.spec.name)
+                    raise NewImportError('missing loader', name=self.spec.name)
                 # A namespace package so do nothing.
             else:
                 self._exec(module)
@@ -1332,7 +1332,7 @@ class FrozenImporter:
     def exec_module(module):
         name = module.__spec__.name
         if not _imp.is_frozen(name):
-            raise ImportError('{!r} is not a frozen module'.format(name),
+            raise NewImportError('{!r} is not a frozen module'.format(name),
                               name=name)
         code = _call_with_frames_removed(_imp.get_frozen_object, name)
         exec(code, module.__dict__)
@@ -1498,7 +1498,7 @@ class SourceLoader(_LoaderBasics):
         try:
             source_bytes = self.get_data(path)
         except OSError as exc:
-            raise ImportError('source not available through get_data()',
+            raise NewImportError('source not available through get_data()',
                               name=fullname) from exc
         return decode_source(source_bytes)
 
@@ -2081,7 +2081,7 @@ class FileFinder:
         def path_hook_for_FileFinder(path):
             """Path hook for importlib.machinery.FileFinder."""
             if not _path_isdir(path):
-                raise ImportError('only directories are supported', path=path)
+                raise NewImportError('only directories are supported', path=path)
             return cls(path, *loader_details)
 
         return path_hook_for_FileFinder
@@ -2199,10 +2199,10 @@ def _find_and_load_unlocked(name, import_):
             path = parent_module.__path__
         except AttributeError:
             msg = (_ERR_MSG + '; {!r} is not a package').format(name, parent)
-            raise ImportError(msg, name=name)
+            raise NewImportError(msg, name=name)
     spec = _find_spec(name, path)
     if spec is None:
-        raise ImportError(_ERR_MSG.format(name), name=name)
+        raise NewImportError(_ERR_MSG.format(name), name=name)
     else:
         module = _SpecMethods(spec)._load_unlocked()
     if parent:
@@ -2238,7 +2238,7 @@ def _gcd_import(name, package=None, level=0):
         _imp.release_lock()
         message = ('import of {} halted; '
                    'None in sys.modules'.format(name))
-        raise ImportError(message, name=name)
+        raise NewImportError(message, name=name)
     _lock_unlock_module(name)
     return module
 
