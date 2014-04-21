@@ -64,29 +64,43 @@ class MetapathWrapper(SequenceProxy):
             yield finder
 
     def __getitem__(self, index):
-        if index == 0:
+        # XXX Use the Sequence equivalent of ChainMap?
+        if isinstance(index, slice):
+            #raise TypeError('slicing not supported')
+            finders = [self._backportfinder] + self._finders
+            return finders[index]
+        elif index == 0:
             return self._backportfinder
         else:
             return super(MetapathWrapper, self).__getitem__(index - 1)
 
     def __setitem__(self, index, value):
-        if index == 0:
+        if isinstance(index, slice):
+            raise TypeError('slicing not supported')
+        elif index == 0:
             raise IndexError('cannot replace backport finder')
             # XXX Or redirect to index 1.
-        super(MetapathWrapper, self).__setitem__(index - 1, value)
+        else:
+            super(MetapathWrapper, self).__setitem__(index - 1, value)
 
     def __delitem__(self, index):
-        if index == 0:
+        if isinstance(index, slice):
+            raise TypeError('slicing not supported')
+        elif index == 0:
             raise IndexError('cannot remove backport finder')
             # XXX Or redirect to index 1.
-        super(MetapathWrapper, self).__delitem__(index - 1)
+        else:
+            super(MetapathWrapper, self).__delitem__(index - 1)
 
     @property
     def backportfinder(self):
         return self._backportfinder
 
     def insert(self, index, value):
+        if isinstance(index, slice):
+            raise TypeError('slicing not supported')
         if index == 0:
+            # XXX Too sneaky?
             index = 1
         super(MetapathWrapper, self).insert(index - 1, value)
 
@@ -114,9 +128,28 @@ class BackportLoader(object):
     def __repr__(self):
         return '{}({!r})'.format(self.__class__.__name__, self._spec)
 
+    def __str__(self):
+        return str(self._spec.loader)
+
     def __getattr__(self, name):
         # XXX special-case namespace packages?
         return getattr(self._spec.loader, name)
+
+    def __eq__(self, other):
+        try:
+            other_spec = other.spec
+        except AttributeError:
+            # other must be a loader.
+            return self._spec.loader == other
+        else:
+            return self._spec == other_spec
+
+    def __ne__(self, other):
+        return not (self == other)
+
+    @property
+    def spec(self):
+        return self._spec
 
     def load_module(self, name):
         if name != self._spec.name:

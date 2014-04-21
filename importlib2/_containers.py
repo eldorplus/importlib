@@ -58,11 +58,30 @@ class _ContainerProxy(_Proxy):
         del self._raw[key_or_index]
 
 
+#################################################
+# sequences
+
+def resolve_indices(index, seq):
+    # Needed for slices and negative indices.
+    try:
+        size = len(seq)
+    except TypeError:
+        size = int(seq)
+    indices = range(size)
+    if isinstance(index, slice):
+        return list(indices[index])
+    else:
+        return [indices[index]]
+
+
 class SequenceProxy(_ContainerProxy, MutableSequence):
 
     def insert(self, index, value):
         self._raw.insert(index, value)
 
+
+#################################################
+# mappings
 
 class MappingProxy(_ContainerProxy, MutableMapping):
 
