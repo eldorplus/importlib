@@ -1,8 +1,6 @@
 """A pure Python implementation of import."""
 __all__ = ['__import__', 'import_module', 'invalidate_caches', 'reload']
 
-__version__ = (0, 1, 0)
-
 # Bootstrap help #####################################################
 
 # Until bootstrapping is complete, DO NOT import any modules that attempt
