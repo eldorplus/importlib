@@ -184,6 +184,7 @@ class PathHooksWrapper(list):
         for hook in hooks:
             if hook.__module__ == '_frozen_importlib':
                 oldhooks.append(hook)
+        # XXX Include imp.NullImporter?
         return oldhooks
 
     @classmethod
@@ -209,6 +210,65 @@ class PathHooksWrapper(list):
         self._add_default_hooks(self)
 
 
+#################################################
+# modules
+
+def _get_parent(mod):
+    parent = mod.__name__.rpartition('.')[0]
+    return sys.modules[parent] if parent else None
+
+
+def _get_path(mod):
+    parent = _get_parent(mod)
+    if not parent:
+        return sys.path
+    else:
+        return parent.__path__
+
+
+def _get_spec(mod):
+    spec = getattr(mod, '__spec__', None)
+    if spec is not None:
+        return spec
+
+    name = mod.__name__
+    loader = getattr(mod, '__loader__', None)
+    filename = getattr(mod, '__file__', None)
+    if loader is None:
+        if name == '__main__':
+            if not filename:
+                return None
+            # XXX Use SourceFileLoader.
+            return None
+        else:
+            path = _get_path(mod)
+            return _bootstrap._find_spec(name, path)
+    else:
+        if name == '__main__':
+            # XXX Figure out the name for the spec.
+            return None
+        return _bootstrap.spec_from_loader(name, loader)
+
+
+def _fix_module(mod):
+    spec = _get_spec(mod)
+    mod.__spec__ = spec
+    mod.__loader__ = spec.loader if spec is not None else None
+    # XXX Fix __pycache__?
+
+
+def _fix_modules():
+    # See _bootstrap.setup().
+    module_type = type(sys)
+    for name in sorted(sys.modules):
+        module = sys.modules[name]
+        if isinstance(module, module_type):
+            _fix_module(module)
+
+
+#################################################
+# install
+
 def _install___import__():
     from ._fixers import builtins
     _import = builtins.__import__
@@ -228,3 +288,5 @@ def install():
     with _locked():
         #_install___import__()
         _install_finder()
+        sys.path_importer_cache.clear()
+        _fix_modules()

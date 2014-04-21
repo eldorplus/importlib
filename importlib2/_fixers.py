@@ -38,7 +38,18 @@ def fix_bootstrap(bootstrap):
     # XXX Inject _boostrap into _frozen_importlib (if it exists)?
     if not sys.modules.get('_frozen_importlib'):
         sys.modules['_frozen_importlib'] = bootstrap
+
     bootstrap.NewImportError = NewImportError
+
+    class Module(type(sys)):
+        def __init__(self, name):
+            super(Module, self).__init__(name)
+            self.__spec__ = None
+            self.__loader__ = None
+        def __repr__(self):
+            return bootstrap._module_repr(self)
+    Module.__module__ = bootstrap.__name__
+    bootstrap._new_module = Module
 
 
 def fix_os(os=None):

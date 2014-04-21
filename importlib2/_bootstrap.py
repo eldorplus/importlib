@@ -1532,7 +1532,7 @@ class SourceLoader(_LoaderBasics):
                 source_mtime = int(st['mtime'])
                 try:
                     data = self.get_data(bytecode_path)
-                except OSError:
+                except (IOError, OSError):
                     pass
                 else:
                     try:
