@@ -6,6 +6,7 @@ such it requires the injection of specific modules and attributes in order to
 work. One should use importlib as the public-facing version of this module.
 
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
 #
 # IMPORTANT: Whenever making changes to this module, be sure to run
 # a top-level make in order to get the frozen version of the module
@@ -2429,7 +2430,7 @@ def _setup(sys_module, _imp_module):
 
 def _install(sys_module, _imp_module):
     """Install importlib as the implementation of import."""
-    _setup(sys_module, _imp_module)
+#    _setup(sys_module, _imp_module)
     supported_loaders = _get_supported_file_loaders()
     sys.path_hooks.extend([FileFinder.path_hook(*supported_loaders)])
     sys.meta_path.append(BuiltinImporter)

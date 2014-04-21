@@ -1,5 +1,9 @@
 """A pure Python implementation of import."""
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __all__ = ['__import__', 'import_module', 'invalidate_caches', 'reload']
+
+__version__ = (0, 1, 0)
 
 # Bootstrap help #####################################################
 
@@ -9,26 +13,31 @@ __all__ = ['__import__', 'import_module', 'invalidate_caches', 'reload']
 # modules would get an uninitialised copy of the source version, instead
 # of a fully initialised version (either the frozen one or the one
 # initialised below if the frozen one is not available).
-import _imp  # Just the builtin component, NOT the full Python module
+try:
+    import _imp  # Just the builtin component, NOT the full Python module
+except ImportError:
+    import imp as _imp
 import sys
 
-try:
-    import _frozen_importlib as _bootstrap
-except ImportError:
-    from . import _bootstrap
-    _bootstrap._setup(sys, _imp)
-else:
-    # importlib._bootstrap is the built-in import, ensure we don't create
-    # a second copy of the module.
-    _bootstrap.__name__ = 'importlib._bootstrap'
-    _bootstrap.__package__ = 'importlib'
-    try:
-        _bootstrap.__file__ = __file__.replace('__init__.py', '_bootstrap.py')
-    except NameError:
-        # __file__ is not guaranteed to be defined, e.g. if this code gets
-        # frozen by a tool like cx_Freeze.
-        pass
-    sys.modules['importlib._bootstrap'] = _bootstrap
+#try:
+#    import _frozen_importlib as _bootstrap
+#except ImportError:
+#    from . import _bootstrap
+#    _bootstrap._setup(sys, _imp)
+#else:
+#    # importlib._bootstrap is the built-in import, ensure we don't create
+#    # a second copy of the module.
+#    _bootstrap.__name__ = 'importlib._bootstrap'
+#    _bootstrap.__package__ = 'importlib'
+#    try:
+#        _bootstrap.__file__ = __file__.replace('__init__.py', '_bootstrap.py')
+#    except NameError:
+#        # __file__ is not guaranteed to be defined, e.g. if this code gets
+#        # frozen by a tool like cx_Freeze.
+#        pass
+#    sys.modules['importlib._bootstrap'] = _bootstrap
+from . import _bootstrap
+_bootstrap._setup(sys, _imp)
 
 # To simplify imports in test code
 _w_long = _bootstrap._w_long
@@ -146,7 +155,7 @@ def reload(module):
         target = module
         spec = module.__spec__ = _bootstrap._find_spec(name, pkgpath, target)
         methods = _bootstrap._SpecMethods(spec)
-        methods.exec(module)
+        getattr(methods, 'exec')(module)
         # The module may have replaced itself in sys.modules!
         return sys.modules[name]
     finally:

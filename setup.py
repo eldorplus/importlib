@@ -1,8 +1,8 @@
-from __future__ import absolute_import
-
 import os
 from importlib import import_module
 from distutils.core import setup
+
+from importlib2 import __version__
 
 
 basedir = os.path.abspath(os.path.dirname(__file__) or '.')
@@ -18,25 +18,12 @@ project_url = 'https://bitbucket.org/ericsnowcurrently/importlib2/'
 
 # dymanically generated data
 
-version = '.'.join(str(val)
-                   for val in import_module(package_name).__version__)
+version = '.'.join(str(val) for val in __version__)
+
 
 # set up packages
 
-modules = []
-
-exclude_dirs = [
-        ]
-
 packages = ['importlib2']
-#packages = []
-#for path, dirs, files in os.walk(package_name):
-#    if '__init__.py' not in files:
-#        continue
-#    path = path.split(os.sep)
-#    if path[-1] in exclude_dirs:
-#        continue
-#    packages.append('.'.join(path))
 
 
 # other data

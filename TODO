@@ -1,7 +1,7 @@
 === Phase 1 ===
-* Add test/__main__.py
-* Remove bootstrapping-related code.
 * Update to work under 2.7 and 3.2.
+* Add __future__ to all test modules.
+* Remove bootstrapping-related code.
 * Set up continuous integration (perhaps https://www.shiningpanda-ci.com/).
 * Release 0.1.0.
 

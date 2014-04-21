@@ -1,4 +1,6 @@
 """Abstract base classes related to import."""
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from . import _bootstrap
 from . import machinery
 try:
