@@ -11,7 +11,7 @@ REVFILE = 'REVISION'
 
 COPIED = {'Lib/importlib/': 'importlib2',
           'Lib/test/test_importlib/': 'tests/test_importlib',
-
+          'Lib/test/lock_tests.py': 'tests',
           'Lib/test/support/': 'tests/support',
           }
 
@@ -33,7 +33,7 @@ def _repo_cmd(cmd, dirname):
     # XXX sanitize dirname?
     with pushd(dirname):
         output = subprocess.check_output(cmd, shell=True)
-    return output.strip()
+    return output.decode().strip()
 
 
 def repo_root(dirname=None):
@@ -54,7 +54,20 @@ def repo_revision(dirname):
     return _repo_cmd(cmd, dirname)
 
 
-def repo_copytree(source, target, verbose=True, dryrun=False):
+def _copy_file(filename, source, target, verbose, dryrun):
+    sfilename = os.path.join(source, filename)
+    tfilename = os.path.join(target, filename)
+    if verbose:
+        print(filename)
+    if not dryrun:
+        try:
+            os.makedirs(target)
+        except OSError:
+            pass
+        shutil.copy2(sfilename, tfilename)
+
+
+def _copy_files(source, target, verbose, dryrun, filenames=None):
     source = os.path.abspath(source) + os.path.sep
     target = os.path.abspath(target) + os.path.sep
     if verbose:
@@ -63,17 +76,19 @@ def repo_copytree(source, target, verbose=True, dryrun=False):
         print('  to')
         print(target)
         print('------------------------------')
-    for filename in repo_listdir(source):
-        sfilename = os.path.join(source, filename)
-        tfilename = os.path.join(target, filename)
-        if verbose:
-            print(filename)
-        if not dryrun:
-            try:
-                os.makedirs(os.path.dirname(tfilename))
-            except OSError:
-                pass
-            shutil.copy2(sfilename, tfilename)
+    if filenames is None:
+        filenames = repo_listdir(source)
+    for filename in filenames:
+        _copy_file(filename, source, target, verbose, dryrun)
+
+
+def repo_copytree(source, target, verbose=True, dryrun=False):
+    _copy_files(source, target, verbose, dryrun)
+
+
+def repo_copyfile(source, target, verbose=True, dryrun=False):
+    filenames = (os.path.basename(source),)
+    _copy_files(os.path.dirname(source), target, verbose, dryrun, filenames)
 
 
 def save_revision(source, target, verbose=True, dryrun=False):
@@ -94,8 +109,9 @@ def parse_args():
     parser.add_argument('-q', '--quiet', dest='verbose', action='store_false',
                         default=True)
     parser.add_argument('--dryrun', action='store_true')
-    parser.add_argument('source')
-    parser.add_argument('target', nargs='?', default='.')
+    parser.add_argument('source', metavar='SOURCEREPO')
+    parser.add_argument('target', nargs='?', default='.',
+                        metavar='TARGETREPO', help='(default ".")')
     args = parser.parse_args()
 
     if args.dryrun:
@@ -109,13 +125,20 @@ if __name__ == '__main__':
 
     sourcerepo = repo_root(args.source)
     targetrepo = repo_root(args.target)
+    print('copying from {} to {}'.format(sourcerepo, targetrepo))
 
-    for source, target in COPIED.items():
+    for source in sorted(COPIED):
+        target = COPIED[source]
         source = os.path.join(sourcerepo, source)
         target = os.path.join(targetrepo, target)
-        repo_copytree(source, target,
-                      verbose=args.verbose,
-                      dryrun=args.dryrun)
+        if os.path.isdir(source):
+            repo_copytree(source, target,
+                          verbose=args.verbose,
+                          dryrun=args.dryrun)
+        else:
+            repo_copyfile(source, target,
+                          verbose=args.verbose,
+                          dryrun=args.dryrun)
 
     save_revision(sourcerepo, targetrepo,
                   verbose=args.verbose,
