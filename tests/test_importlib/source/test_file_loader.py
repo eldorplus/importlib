@@ -62,6 +62,7 @@ class SimpleTest(abc.LoaderTests):
 
     def test_equality(self):
         other = self.machinery.SourceFileLoader(self.name, self.filepath)
+        print(self.machinery)
         self.assertEqual(self.loader, other)
 
     def test_inequality(self):

@@ -5,4 +5,8 @@ syntax: glob
 *.pyo
 *.bak
 *.swp
+*.orig
+*.rej
 *~
+
+MANIFEST

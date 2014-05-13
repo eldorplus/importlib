@@ -31,3 +31,6 @@ def test_main():
     top_dir = os.path.dirname(os.path.dirname(start_dir))
     test_loader = unittest.TestLoader()
     support.run_unittest(test_loader.discover(start_dir, top_level_dir=top_dir))
+
+
+load_tests = support.make_load_tests(__file__)
