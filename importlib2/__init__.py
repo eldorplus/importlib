@@ -9,7 +9,10 @@ __all__ = ['__import__', 'import_module', 'invalidate_caches', 'reload']
 # modules would get an uninitialised copy of the source version, instead
 # of a fully initialised version (either the frozen one or the one
 # initialised below if the frozen one is not available).
-import _imp  # Just the builtin component, NOT the full Python module
+try:
+    import _imp  # Just the builtin component, NOT the full Python module
+except ImportError:
+    import imp as _imp
 import sys
 
 from . import _bootstrap
@@ -18,6 +21,11 @@ _bootstrap._setup(sys, _imp)
 # To simplify imports in test code
 _w_long = _bootstrap._w_long
 _r_long = _bootstrap._r_long
+
+import _fixers
+_fixers.fix_builtins()
+_fixers.fix_sys(sys)
+_fixers.fix_imp(_imp)
 
 # Fully bootstrapped at this point, import whatever you like, circular
 # dependencies and startup overhead minimisation permitting :)
@@ -131,7 +139,7 @@ def reload(module):
         target = module
         spec = module.__spec__ = _bootstrap._find_spec(name, pkgpath, target)
         methods = _bootstrap._SpecMethods(spec)
-        methods.exec(module)
+        methods.exec_(module)
         # The module may have replaced itself in sys.modules!
         return sys.modules[name]
     finally:

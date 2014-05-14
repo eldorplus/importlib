@@ -20,6 +20,9 @@ work. One should use importlib as the public-facing version of this module.
 # reference any injected objects! This includes not only global code but also
 # anything specified at the class level.
 
+from __future__ import print_function
+from . import _fixers
+
 # Bootstrap-related code ######################################################
 
 _CASE_INSENSITIVE_PLATFORMS = 'win', 'cygwin', 'darwin'
@@ -134,7 +137,7 @@ _code_type = type(_wrap.__code__)
 
 
 
-class _ManageReload:
+class _ManageReload(object):
 
     """Manages the possible clean-up of sys.modules for load_module()."""
 
@@ -163,7 +166,7 @@ class _DeadlockError(RuntimeError):
     pass
 
 
-class _ModuleLock:
+class _ModuleLock(object):
     """A recursive lock implementation which is able to detect deadlocks
     (e.g. thread 1 trying to take locks A then B, and thread 2 trying to
     take locks B then A).
@@ -231,7 +234,7 @@ class _ModuleLock:
         return '_ModuleLock({!r}) at {}'.format(self.name, id(self))
 
 
-class _DummyModuleLock:
+class _DummyModuleLock(object):
     """A simple _ModuleLock equivalent for Python builds without
     multi-threading support."""
 
@@ -252,7 +255,7 @@ class _DummyModuleLock:
         return '_DummyModuleLock({!r}) at {}'.format(self.name, id(self))
 
 
-class _ModuleLockManager:
+class _ModuleLockManager(object):
 
     def __init__(self, name):
         self._name = name
@@ -516,8 +519,9 @@ def _calc_mode(path):
     return mode
 
 
-def _verbose_message(message, *args, verbosity=1):
+def _verbose_message(message, *args, **kwargs):
     """Print the message to stderr if -v/PYTHONVERBOSE is turned on."""
+    verbosity = kwargs.pop('verbosity', 1)
     if sys.flags.verbose >= verbosity:
         if not message.startswith(('#', 'import ')):
             message = '# ' + message
@@ -591,7 +595,7 @@ def _load_module_shim(self, fullname):
     methods = _SpecMethods(spec)
     if fullname in sys.modules:
         module = sys.modules[fullname]
-        methods.exec(module)
+        methods.exec_(module)
         return sys.modules[fullname]
     else:
         return methods.load()
@@ -724,7 +728,7 @@ def _module_repr(module):
         return '<module {!r} from {!r}>'.format(name, filename)
 
 
-class _installed_safely:
+class _installed_safely(object):
 
     def __init__(self, module):
         self._module = module
@@ -751,7 +755,7 @@ class _installed_safely:
             self._spec._initializing = False
 
 
-class ModuleSpec:
+class ModuleSpec(object):
     """The specification for a module, used for loading.
 
     A module's spec is the source for information about the module.  For
@@ -788,7 +792,8 @@ class ModuleSpec:
 
     """
 
-    def __init__(self, name, loader, *, origin=None, loader_state=None,
+    @_fixers.kwonly('origin loader_state is_package')
+    def __init__(self, name, loader, origin=None, loader_state=None,
                  is_package=None):
         self.name = name
         self.loader = loader
@@ -857,7 +862,8 @@ class ModuleSpec:
         self._set_fileattr = bool(value)
 
 
-def spec_from_loader(name, loader, *, origin=None, is_package=None):
+@_fixers.kwonly('origin is_package')
+def spec_from_loader(name, loader, origin=None, is_package=None):
     """Return a module spec based on various loader methods."""
     if hasattr(loader, 'get_filename'):
         if is_package is None:
@@ -882,7 +888,8 @@ def spec_from_loader(name, loader, *, origin=None, is_package=None):
 _POPULATE = object()
 
 
-def spec_from_file_location(name, location=None, *, loader=None,
+@_fixers.kwonly('loader submodule_search_locations')
+def spec_from_file_location(name, location=None, loader=None,
                             submodule_search_locations=_POPULATE):
     """Return a module spec based on a file location.
 
@@ -991,7 +998,7 @@ def _spec_from_module(module, loader=None, origin=None):
     return spec
 
 
-class _SpecMethods:
+class _SpecMethods(object):
 
     """Convenience wrapper around spec objects to provide spec-specific
     methods."""
@@ -1017,7 +1024,7 @@ class _SpecMethods:
             else:
                 return '<module {!r} ({})>'.format(spec.name, spec.origin)
 
-    def init_module_attrs(self, module, *, _override=False, _force_name=True):
+    def init_module_attrs(self, module, _override=False, _force_name=True):
         """Set the module's attributes.
 
         All missing import-related module attributes will be set.  Here
@@ -1130,7 +1137,7 @@ class _SpecMethods:
         self.spec.loader.exec_module(module)
 
     # Used by importlib.reload() and _load_module_shim().
-    def exec(self, module):
+    def exec_(self, module):
         """Execute the spec in an existing module's namespace."""
         name = self.spec.name
         _imp.acquire_lock()
@@ -1246,7 +1253,7 @@ def _fix_up_module(ns, name, pathname, cpathname=None):
 
 # Loaders #####################################################################
 
-class BuiltinImporter:
+class BuiltinImporter(object):
 
     """Meta path import for built-in modules.
 
@@ -1316,7 +1323,7 @@ class BuiltinImporter:
         return False
 
 
-class FrozenImporter:
+class FrozenImporter(object):
 
     """Meta path import for frozen modules.
 
@@ -1357,7 +1364,7 @@ class FrozenImporter:
             raise ImportError('{!r} is not a frozen module'.format(name),
                               name=name)
         code = _call_with_frames_removed(_imp.get_frozen_object, name)
-        exec(code, module.__dict__)
+        _fixers.exec_(code, module.__dict__)
 
     @classmethod
     def load_module(cls, fullname):
@@ -1387,7 +1394,7 @@ class FrozenImporter:
         return _imp.is_frozen_package(fullname)
 
 
-class WindowsRegistryFinder:
+class WindowsRegistryFinder(object):
 
     """Meta path finder for modules declared in the Windows registry."""
 
@@ -1450,7 +1457,7 @@ class WindowsRegistryFinder:
             return None
 
 
-class _LoaderBasics:
+class _LoaderBasics(object):
 
     """Base class of common code needed by both SourceLoader and
     SourcelessFileLoader."""
@@ -1469,7 +1476,7 @@ class _LoaderBasics:
         if code is None:
             raise ImportError('cannot load module {!r} when get_code() '
                               'returns None'.format(module.__name__))
-        _call_with_frames_removed(exec, code, module.__dict__)
+        _call_with_frames_removed(_fixers.exec_, code, module.__dict__)
 
     load_module = _load_module_shim
 
@@ -1520,11 +1527,13 @@ class SourceLoader(_LoaderBasics):
         try:
             source_bytes = self.get_data(path)
         except OSError as exc:
-            raise ImportError('source not available through get_data()',
-                              name=fullname) from exc
+            e = ImportError('source not available through get_data()',
+                            name=fullname)
+            e.__cause__ = exc
+            raise e
         return decode_source(source_bytes)
 
-    def source_to_code(self, data, path, *, _optimize=-1):
+    def source_to_code(self, data, path, _optimize=-1):
         """Return the code object compiled from source.
 
         The 'data' argument can be any object type that compile() supports.
@@ -1584,7 +1593,7 @@ class SourceLoader(_LoaderBasics):
         return code_object
 
 
-class FileLoader:
+class FileLoader(object):
 
     """Base file loader class which implements the loader protocol methods that
     require file system usage."""
@@ -1639,7 +1648,7 @@ class SourceFileLoader(FileLoader, SourceLoader):
         mode = _calc_mode(source_path)
         return self.set_data(bytecode_path, data, _mode=mode)
 
-    def set_data(self, path, data, *, _mode=0o666):
+    def set_data(self, path, data, _mode=0o666):
         """Write bytes data to a file."""
         parent, filename = _path_split(path)
         path_parts = []
@@ -1687,7 +1696,7 @@ class SourcelessFileLoader(FileLoader, _LoaderBasics):
 EXTENSION_SUFFIXES = []
 
 
-class ExtensionFileLoader:
+class ExtensionFileLoader(object):
 
     """Loader for extension modules.
 
@@ -1744,7 +1753,7 @@ class ExtensionFileLoader:
         return self.path
 
 
-class _NamespacePath:
+class _NamespacePath(object):
     """Represents a namespace package's path.  It uses the module name
     to find its parent module, and from there it looks up the parent's
     __path__.  When this changes, the module's own path is recomputed,
@@ -1801,7 +1810,7 @@ class _NamespacePath:
 
 
 # We use this exclusively in init_module_attrs() for backward-compatibility.
-class _NamespaceLoader:
+class _NamespaceLoader(object):
     def __init__(self, name, path, path_finder):
         self._path = _NamespacePath(name, path, path_finder)
 
@@ -1839,7 +1848,7 @@ class _NamespaceLoader:
 
 # Finders #####################################################################
 
-class PathFinder:
+class PathFinder(object):
 
     """Meta path finder for sys.path and package __path__ attributes."""
 
@@ -1968,7 +1977,7 @@ class PathFinder:
         return spec.loader
 
 
-class FileFinder:
+class FileFinder(object):
 
     """File-based finder.
 
@@ -2114,7 +2123,7 @@ class FileFinder:
 
 # Import itself ###############################################################
 
-class _ImportLockContext:
+class _ImportLockContext(object):
 
     """Context manager for the import lock."""
 

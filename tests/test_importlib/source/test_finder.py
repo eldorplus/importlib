@@ -49,7 +49,7 @@ class FinderTests(abc.FinderTests):
         finder = self.get_finder(root)
         return self._find(finder, module, loader_only=True)
 
-    def run_test(self, test, create=None, *, compile_=None, unlink=None):
+    def run_test(self, test, create=None, compile_=None, unlink=None):
         """Test the finding of 'test' with the creation of modules listed in
         'create'.
 

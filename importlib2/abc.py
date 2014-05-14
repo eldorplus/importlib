@@ -10,6 +10,9 @@ except ImportError as exc:
 import abc
 
 
+ABC = abc.ABCMeta('ABC', (), {})
+
+
 def _register(abstract_cls, *classes):
     for cls in classes:
         abstract_cls.register(cls)
@@ -18,7 +21,7 @@ def _register(abstract_cls, *classes):
             abstract_cls.register(frozen_cls)
 
 
-class Finder(metaclass=abc.ABCMeta):
+class Finder(ABC):
 
     """Legacy abstract base class for import finders.
 
@@ -112,7 +115,7 @@ class PathEntryFinder(Finder):
 _register(PathEntryFinder, machinery.FileFinder)
 
 
-class Loader(metaclass=abc.ABCMeta):
+class Loader(ABC):
 
     """Abstract base class for import loaders."""
 
@@ -296,9 +299,12 @@ class SourceLoader(_bootstrap.SourceLoader, ResourceLoader, ExecutionLoader):
 
     def path_mtime(self, path):
         """Return the (int) modification time for the path (str)."""
-        if self.path_stats.__func__ is SourceLoader.path_stats:
+
+        if self.path_stats.__func__ is SourceLoader._MTIME:
             raise IOError
         return int(self.path_stats(path)['mtime'])
+
+    _MTIME = staticmethod(path_mtime)
 
     def path_stats(self, path):
         """Return a metadata dict for the source pointed to by the path (str).
@@ -307,9 +313,11 @@ class SourceLoader(_bootstrap.SourceLoader, ResourceLoader, ExecutionLoader):
           code modification;
         - 'size' (optional) is the size in bytes of the source code.
         """
-        if self.path_mtime.__func__ is SourceLoader.path_mtime:
+        if self.path_mtime.__func__ is SourceLoader._STATS:
             raise IOError
         return {'mtime': self.path_mtime(path)}
+
+    _STATS = staticmethod(path_stats)
 
     def set_data(self, path, data):
         """Write the bytes to the path (if possible).

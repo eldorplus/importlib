@@ -1,4 +1,5 @@
 """Supporting definitions for the Python regression tests."""
+from __future__ import print_function
 
 import contextlib
 import errno
@@ -128,7 +129,7 @@ def _ignore_deprecated_imports(ignore=True):
         yield
 
 
-def import_module(name, deprecated=False, *, required_on=()):
+def import_module(name, deprecated=False, required_on=()):
     """Import and return the module to be tested, raising SkipTest if
     it is not available.
 
@@ -1252,7 +1253,7 @@ ioerror_peer_reset = TransientResource(OSError, errno=errno.ECONNRESET)
 
 
 @contextlib.contextmanager
-def transient_internet(resource_name, *, timeout=30.0, errnos=()):
+def transient_internet(resource_name, timeout=30.0, errnos=()):
     """Return a context manager that raises ResourceDenied when various issues
     with the Internet connection manifest themselves as exceptions."""
     default_errnos = [
@@ -1287,7 +1288,8 @@ def transient_internet(resource_name, *, timeout=30.0, errnos=()):
             n in captured_errnos):
             if not verbose:
                 sys.stderr.write(denied.args[0] + "\n")
-            raise denied from err
+            denied.__cause__ = err
+            raise denied
 
     old_timeout = socket.getdefaulttimeout()
     try:
@@ -1527,7 +1529,7 @@ def set_memlimit(limit):
         raise ValueError('Memory limit %r too low to be useful' % (limit,))
     max_memuse = memlimit
 
-class _MemoryWatchdog:
+class _MemoryWatchdog(object):
     """An object which periodically watches the process' memory consumption
     and prints it out.
     """
@@ -1620,7 +1622,7 @@ def bigaddrspacetest(f):
 #=======================================================================
 # unittest integration.
 
-class BasicTestRunner:
+class BasicTestRunner(object):
     def run(self, test):
         result = unittest.TestResult()
         test(result)
@@ -2101,7 +2103,7 @@ def fs_is_case_insensitive(directory):
         os.unlink(base_path)
 
 
-class SuppressCrashReport:
+class SuppressCrashReport(object):
     """Try to prevent a crash report from popping up.
 
     On Windows, don't display the Windows Error Reporting dialog.  On UNIX,

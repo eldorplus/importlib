@@ -5,7 +5,7 @@ machinery = util.import_importlib('importlib.machinery')
 import unittest
 
 
-class PathHookTest:
+class PathHookTest(object):
 
     """Test the path hook for source."""
 
