@@ -102,6 +102,32 @@ def fix_threading():
         _thread.TIMEOUT_MAX = 10  # XXX Make it accurate.
 
 
+def fix_types():
+    import types
+    if not hasattr(types, 'SimpleNamespace'):
+        types.SimpleNamespace = type(sys.implementation)
+    if not hasattr(types, 'new_class'):
+        def new_class(name, bases=(), kwds=None, exec_body=None):
+            if kwds and 'metaclass' in kwds:
+                meta = kwds['metaclass']
+            else:
+                meta = type
+            ns = {}
+            if exec_body is not None:
+                exec_body(ns)
+            return meta(name, bases, ns)
+        types.new_class = new_class
+
+
+def fix_unittest():
+    import unittest
+    from contextlib import contextmanager
+    @contextmanager
+    def subTest(self, *args, **kwargs):
+        yield
+    unittest.TestCase.subTest = subTest
+
+
 def kwonly(names):
     if isinstance(names, str):
         names = names.replace(',', ' ').split()

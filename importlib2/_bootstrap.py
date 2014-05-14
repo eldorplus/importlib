@@ -66,10 +66,10 @@ def _w_long(x):
 
 def _r_long(int_bytes):
     """Convert 4 bytes in little-endian to an integer."""
-    x = int_bytes[0]
-    x |= int_bytes[1] << 8
-    x |= int_bytes[2] << 16
-    x |= int_bytes[3] << 24
+    x = ord(int_bytes[0])
+    x |= ord(int_bytes[1]) << 8
+    x |= ord(int_bytes[2]) << 16
+    x |= ord(int_bytes[3]) << 24
     return x
 
 
@@ -1560,8 +1560,9 @@ class SourceLoader(_LoaderBasics):
 
         The 'data' argument can be any object type that compile() supports.
         """
+        # XXX Handle _optimize when possible?
         return _call_with_frames_removed(compile, data, path, 'exec',
-                                        dont_inherit=True, optimize=_optimize)
+                                        dont_inherit=True)
 
     def get_code(self, fullname):
         """Concrete implementation of InspectLoader.get_code.
@@ -1585,7 +1586,7 @@ class SourceLoader(_LoaderBasics):
                 source_mtime = int(st['mtime'])
                 try:
                     data = self.get_data(bytecode_path)
-                except OSError:
+                except (OSError, IOError):
                     pass
                 else:
                     try:
@@ -1683,10 +1684,14 @@ class SourceFileLoader(FileLoader, SourceLoader):
             parent = _path_join(parent, part)
             try:
                 _os.mkdir(parent)
-            except FileExistsError:
-                # Probably another Python process already created the dir.
-                continue
+#            except FileExistsError:
+#                # Probably another Python process already created the dir.
+#                continue
             except OSError as exc:
+                import errno
+                if exc.errno == errno.EEXIST:
+                    # Probably another Python process already created the dir.
+                    continue
                 # Could be a permission error, read-only filesystem: just forget
                 # about writing the data.
                 _verbose_message('could not create {!r}: {!r}', parent, exc)

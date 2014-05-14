@@ -25,6 +25,8 @@ importlib2 = inject_importlib2()
 # Fix up the stdlib.
 from importlib2 import _fixers
 _fixers.fix_collections()
+_fixers.fix_types()
+_fixers.fix_unittest()
 
 # Swap in tests.
 from . import support

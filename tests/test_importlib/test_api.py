@@ -74,23 +74,23 @@ class ImportModuleTests(object):
         with self.assertRaises(TypeError):
             self.init.import_module('.support')
 
-
     def test_loaded_once(self):
         # Issue #13591: Modules should only be loaded once when
         # initializing the parent package attempts to import the
         # module currently being imported.
-        b_load_count = 0
-        def load_a():
-            self.init.import_module('a.b')
-        def load_b():
-            nonlocal b_load_count
-            b_load_count += 1
-        code = {'a': load_a, 'a.b': load_b}
+        class Loaded(object):
+            b_load_count = 0
+            def load_a(s):
+                self.init.import_module('a.b')
+            def load_b(s):
+                s.b_load_count += 1
+        loaded = Loaded()
+        code = {'a': loaded.load_a, 'a.b': loaded.load_b}
         modules = ['a.__init__', 'a.b']
         with test_util.mock_modules(*modules, module_code=code) as mock:
             with test_util.import_state(meta_path=[mock]):
                 self.init.import_module('a.b')
-        self.assertEqual(b_load_count, 1)
+        self.assertEqual(loaded.b_load_count, 1)
 
 (Frozen_ImportModuleTests,
  Source_ImportModuleTests
