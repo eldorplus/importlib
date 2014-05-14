@@ -69,10 +69,37 @@ def fix_os(os=None):
                 os.remove(dst)
             os.rename(src, dst)
         _os.replace = replace
+    if not hasattr(os, 'fsencode'):
+        os.fsencode = lambda s: s
+    if not hasattr(os, 'fsdecode'):
+        os.fsdecode = lambda s: s
+
+
+def fix_io():
+    import _io
 
 
 def fix_builtins(builtins=builtins):
     sys.modules.setdefault('builtins', builtins)
+
+
+def fix_collections():
+    try:
+        import collections.abc
+    except ImportError:
+        import collections
+        collections.abc = collections
+        sys.modules['collections.abc'] = collections
+
+
+def fix_threading():
+    try:
+        import _thread
+    except ImportError:
+        import thread as _thread
+        sys.modules['_thread'] = _thread
+    if not hasattr(_thread, 'TIMEOUT_MAX'):
+        _thread.TIMEOUT_MAX = 10  # XXX Make it accurate.
 
 
 def kwonly(names):

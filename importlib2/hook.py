@@ -153,7 +153,7 @@ def _install___import__():
     _import = _fixers.builtins.__import__
     def __import__(name, *args, **kwargs):
         return _import(name, *args, **kwargs)
-    builtins.__import__ = __import__
+    _fixers.builtins.__import__ = __import__
 
 
 def install():

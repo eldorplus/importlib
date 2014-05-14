@@ -790,8 +790,9 @@ elif sys.platform != 'darwin':
         b'\xff'.decode(TESTFN_ENCODING)
     except UnicodeDecodeError:
         # 0xff will be encoded using the surrogate character u+DCFF
-        TESTFN_UNENCODABLE = TESTFN \
-            + b'-\xff'.decode(TESTFN_ENCODING, 'surrogateescape')
+#        TESTFN_UNENCODABLE = TESTFN \
+#            + b'-\xff'.decode(TESTFN_ENCODING, 'surrogateescape')
+        pass  # XXX Fix this?
     else:
         # File system encoding (eg. ISO-8859-* encodings) can encode
         # the byte 0xff. Skip some unicode filename tests.

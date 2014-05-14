@@ -22,10 +22,15 @@ def inject_importlib2():
 # Swap in importlib2.
 importlib2 = inject_importlib2()
 
+# Fix up the stdlib.
+from importlib2 import _fixers
+_fixers.fix_collections()
+
 # Swap in tests.
-from . import support, lock_tests
+from . import support
 sys.modules['test'] = sys.modules[__name__]
 sys.modules['test.support'] = support
+from . import lock_tests
 sys.modules['test.lock_tests'] = lock_tests
 
 # Install the hook.

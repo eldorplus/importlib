@@ -1,12 +1,9 @@
 """Abstract base classes related to import."""
+from __future__ import absolute_import
+
 from . import _bootstrap
 from . import machinery
-try:
-    import _frozen_importlib
-except ImportError as exc:
-    if exc.name != '_frozen_importlib':
-        raise
-    _frozen_importlib = None
+_frozen_importlib = None
 import abc
 
 

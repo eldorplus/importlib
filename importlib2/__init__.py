@@ -16,16 +16,18 @@ except ImportError:
 import sys
 
 from . import _bootstrap
+import _fixers
+_fixers.fix_builtins()
+_fixers.fix_sys(sys)
+_fixers.fix_imp(_imp)
+_fixers.fix_os()
+_fixers.fix_io()
+_fixers.fix_threading()
 _bootstrap._setup(sys, _imp)
 
 # To simplify imports in test code
 _w_long = _bootstrap._w_long
 _r_long = _bootstrap._r_long
-
-import _fixers
-_fixers.fix_builtins()
-_fixers.fix_sys(sys)
-_fixers.fix_imp(_imp)
 
 # Fully bootstrapped at this point, import whatever you like, circular
 # dependencies and startup overhead minimisation permitting :)
