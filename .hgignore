@@ -5,4 +5,5 @@ syntax: glob
 *.pyo
 *.bak
 *.swp
+*.rej
 *~
