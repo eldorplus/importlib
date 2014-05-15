@@ -11,12 +11,16 @@ import sys
 
 REVFILE = 'REVISION'
 
-COPIED = {'Lib/importlib/': 'importlib2',
-          'Lib/test/test_importlib/': 'tests/test_importlib',
-          'Lib/test/lock_tests.py': 'tests',
-          'Lib/test/support/': 'tests/support',
-          'Lib/threading.py': 'tests/support',
+COPIED = {'Lib/importlib/': 'importlib2/',
+          'Lib/test/test_importlib/': 'tests/test_importlib/',
+          'Lib/test/lock_tests.py': 'tests/',
+          'Lib/test/support/': 'tests/support/',
+          'Lib/threading.py': 'importlib2/_fixers/',
           }
+
+
+def suffix(path):
+    return os.path.splitext(path)[-1]
 
 
 # XXX Build into a DirStack class.
@@ -58,19 +62,29 @@ def repo_revision(dirname):
 
 
 def _copy_file(filename, source, target, verbose, dryrun):
-    sfilename = os.path.join(source, filename)
-    tfilename = os.path.join(target, filename)
+    if isinstance(filename, str):
+        sfilename = filename
+        tfilename = filename
+    else:
+        sfilename, tfilename = filename
+    spath = os.path.join(source, sfilename)
+    tpath = os.path.join(target, tfilename)
+
     if verbose:
-        print(filename)
+        if sfilename == tfilename:
+            print(sfilename)
+        else:
+            print('{} -> {}'.format(sfilename, tfilename))
+
     if not dryrun:
         try:
             os.makedirs(target)
         except OSError:
             pass
-        shutil.copy2(sfilename, tfilename)
+        shutil.copy2(spath, tpath)
 
 
-def _copy_files(source, target, verbose, dryrun, filenames=None):
+def _copy_files(source, target, verbose, dryrun, filenames):
     source = os.path.abspath(source) + os.path.sep
     target = os.path.abspath(target) + os.path.sep
     if verbose:
@@ -79,19 +93,27 @@ def _copy_files(source, target, verbose, dryrun, filenames=None):
         print('  to')
         print(target)
         print('------------------------------')
-    if filenames is None:
-        filenames = repo_listdir(source)
     for filename in filenames:
         _copy_file(filename, source, target, verbose, dryrun)
 
 
 def repo_copytree(source, target, verbose=True, dryrun=False):
-    _copy_files(source, target, verbose, dryrun)
+    filenames = repo_listdir(source)
+    _copy_files(source, target, verbose, dryrun, filenames)
 
 
 def repo_copyfile(source, target, verbose=True, dryrun=False):
-    filenames = (os.path.basename(source),)
-    _copy_files(os.path.dirname(source), target, verbose, dryrun, filenames)
+    sfilename = os.path.basename(source)
+    source = os.path.dirname(source)
+
+    if target.endswith('/'):
+        filenames = [sfilename]
+    else:
+        tfilename = os.path.basename(target)
+        filenames = [(sfilename, tfilename)]
+        target = os.path.dirname(target)
+
+    _copy_files(source, target, verbose, dryrun, filenames)
 
 
 def save_revision(source, target, verbose=True, dryrun=False):
