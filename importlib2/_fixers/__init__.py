@@ -27,6 +27,11 @@ def fix_imp(_imp=None):
         _imp.extension_suffixes = lambda: ext_suffixes
     if not hasattr(_imp, '_fix_co_filename'):
         _imp._fix_co_filename = lambda co, sp: None
+    if not hasattr(_imp, 'is_frozen_package'):
+        def is_frozen_package(name):
+            # XXX Finish this.
+            return False
+        _imp.is_frozen_package = is_frozen_package
 
 
 def fix_sys(sys):
