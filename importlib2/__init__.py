@@ -15,14 +15,10 @@ except ImportError:
     import imp as _imp
 import sys
 
+from . import _fixers
+_fixers.inject_importlib(__name__)
 from . import _bootstrap
-import _fixers
-_fixers.fix_builtins()
-_fixers.fix_sys(sys)
-_fixers.fix_imp(_imp)
-_fixers.fix_os()
-_fixers.fix_io()
-_fixers.fix_threading()
+_fixers.fix_bootstrap(_bootstrap, sys, _imp)
 _bootstrap._setup(sys, _imp)
 
 # To simplify imports in test code

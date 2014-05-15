@@ -39,16 +39,31 @@ def fix_sys(sys):
         sys.implementation.cache_tag = '{}-{}{}'.format(NAME, major, minor)
 
 
-def fix_bootstrap(bootstrap):
+def inject_importlib(name):
+    if not name.startswith('importlib2'):
+        return
+    mod = sys.modules[name]
+    newname = name.replace('importlib2', 'importlib')
+    sys.modules[newname] = mod
+#    print('{:25} {:25} {}'.format(name, mod.__name__, newname))
+
+
+def fix_bootstrap(bootstrap, sys, imp):
+    inject_importlib(bootstrap.__name__)
+
     # XXX Inject _boostrap into _frozen_importlib (if it exists)?
-    if not sys.modules.get('_frozen_importlib'):
+    if not sys.modules.get('importlib._bootstrap'):
         sys.modules['_frozen_importlib'] = bootstrap
 
-    bootstrap.NewImportError = NewImportError
+    fix_builtins()
+    fix_sys(sys)
+    fix_imp(imp)
+    fix_os()
+    fix_io()
+    fix_threading()
 
     class Module(type(sys)):
         def __init__(self, name):
-            raise Exception
             super(Module, self).__init__(name)
             self.__spec__ = None
             self.__loader__ = None

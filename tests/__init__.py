@@ -8,19 +8,9 @@ TEST_ROOT = os.path.dirname(__file__)
 PROJECT_ROOT = os.path.dirname(TEST_ROOT)
 
 
-def inject_importlib2():
-    sys.path.insert(0, PROJECT_ROOT)  # Force the right importlib2.
-    import importlib2
-    sys.modules['importlib'] = importlib2
-    from importlib2 import abc, machinery, util
-    sys.modules['importlib.abc'] = abc
-    sys.modules['importlib.machinery'] = machinery
-    sys.modules['importlib.util'] = util
-    return importlib2
-
-
 # Swap in importlib2.
-importlib2 = inject_importlib2()
+sys.path.insert(0, PROJECT_ROOT)  # Force the right importlib2.
+import importlib2
 
 # Fix up the stdlib.
 from importlib2 import _fixers

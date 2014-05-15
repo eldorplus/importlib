@@ -1,6 +1,9 @@
 """Abstract base classes related to import."""
 from __future__ import absolute_import
 
+from . import _fixers
+_fixers.inject_importlib(__name__)
+
 from . import _bootstrap
 from . import machinery
 _frozen_importlib = None

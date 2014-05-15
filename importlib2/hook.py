@@ -149,11 +149,15 @@ def _fix_modules():
 #################################################
 # install
 
+__original_import__ = None
+
+
 def _install___import__():
-    _import = _fixers.builtins.__import__
-    def __import__(name, *args, **kwargs):
-        return _import(name, *args, **kwargs)
-    _fixers.builtins.__import__ = __import__
+    from . import __import__ as importlib___import__
+    global __original_import__
+    assert __original_import__ is None  # should only be called once...
+    __original_import__ = _fixers.builtins.__import__
+    _fixers.builtins.__import__ = importlib___import__
 
 
 def install():
