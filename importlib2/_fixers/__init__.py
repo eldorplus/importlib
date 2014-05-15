@@ -36,12 +36,14 @@ def fix_imp(_imp=None):
 
 def fix_sys(sys):
     if not hasattr(sys, 'implementation'):
-        sys.implementation = type('SimpleNamespace', (), {})()
-        sys.implementation.name = NAME
-        sys.implementation.version = sys.version_info
-        sys.implementation.hexversion = sys.hexversion
+        types = fix_types()
+        impl = types.SimpleNamespace()
+        impl.name = NAME
+        impl.version = sys.version_info
+        impl.hexversion = sys.hexversion
         major, minor = sys.version_info[:2]
-        sys.implementation.cache_tag = '{}-{}{}'.format(NAME, major, minor)
+        impl.cache_tag = '{}-{}{}'.format(NAME, major, minor)
+        sys.implementation = impl
 
 
 def inject_importlib(name):
@@ -132,7 +134,18 @@ def fix_thread():
 def fix_types():
     import types
     if not hasattr(types, 'SimpleNamespace'):
-        types.SimpleNamespace = type(sys.implementation)
+        class SimpleNamespace(object):
+            def __init__(self, **kwargs):
+                self.__dict__.update(kwargs)
+            def __repr__(self):
+                keys = sorted(self.__dict__)
+                items = ("{}={!r}".format(k, self.__dict__[k]) for k in keys)
+                return "{}({})".format(type(self).__name__, ", ".join(items))
+            def __eq__(self, other):
+                return self.__dict__ == other.__dict__
+            def __ne__(self, other):
+                return not(self == other)
+        types.SimpleNamespace = SimpleNamespace
     if not hasattr(types, 'new_class'):
         def new_class(name, bases=(), kwds=None, exec_body=None):
             if kwds and 'metaclass' in kwds:
@@ -144,6 +157,7 @@ def fix_types():
                 exec_body(ns)
             return meta(name, bases, ns)
         types.new_class = new_class
+    return types
 
 
 def fix_unittest():
