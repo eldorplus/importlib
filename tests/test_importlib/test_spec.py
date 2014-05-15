@@ -14,7 +14,7 @@ import warnings
 
 
 
-class TestLoader:
+class TestLoader(object):
 
     def __init__(self, path=None, is_package=None):
         self.path = path
@@ -58,7 +58,7 @@ class LegacyLoader(TestLoader):
             return module
 
 
-class ModuleSpecTests:
+class ModuleSpecTests(object):
 
     def setUp(self):
         self.name = 'spam'
@@ -226,7 +226,7 @@ class ModuleSpecTests:
  ) = test_util.test_both(ModuleSpecTests, machinery=machinery, util=util)
 
 
-class ModuleSpecMethodsTests:
+class ModuleSpecMethodsTests(object):
 
     @property
     def bootstrap(self):
@@ -387,7 +387,7 @@ class ModuleSpecMethodsTests:
         module = self.bootstrap._SpecMethods(self.spec).create()
         sys.modules[self.name] = module
         self.assertFalse(hasattr(module, 'eggs'))
-        self.bootstrap._SpecMethods(self.spec).exec(module)
+        self.bootstrap._SpecMethods(self.spec).exec_(module)
 
         self.assertEqual(module.eggs, 1)
 
@@ -470,7 +470,7 @@ class ModuleSpecMethodsTests:
         self.spec.loader = NewLoader()
         with CleanImport(self.spec.name):
             loaded = self.bootstrap._SpecMethods(self.spec).load()
-            reloaded = self.bootstrap._SpecMethods(self.spec).exec(loaded)
+            reloaded = self.bootstrap._SpecMethods(self.spec).exec_(loaded)
             installed = sys.modules[self.spec.name]
 
         self.assertEqual(loaded.eggs, 1)
@@ -482,7 +482,7 @@ class ModuleSpecMethodsTests:
         with CleanImport(self.spec.name):
             loaded = self.bootstrap._SpecMethods(self.spec).load()
             loaded.eggs = 2
-            reloaded = self.bootstrap._SpecMethods(self.spec).exec(loaded)
+            reloaded = self.bootstrap._SpecMethods(self.spec).exec_(loaded)
 
         self.assertEqual(loaded.eggs, 1)
         self.assertIs(reloaded, loaded)
@@ -492,7 +492,7 @@ class ModuleSpecMethodsTests:
         with CleanImport(self.spec.name):
             loaded = self.bootstrap._SpecMethods(self.spec).load()
             loaded.available = False
-            reloaded = self.bootstrap._SpecMethods(self.spec).exec(loaded)
+            reloaded = self.bootstrap._SpecMethods(self.spec).exec_(loaded)
 
         self.assertFalse(loaded.available)
         self.assertIs(reloaded, loaded)
@@ -505,7 +505,7 @@ class ModuleSpecMethodsTests:
             del loaded.__loader__
             del loaded.__package__
             del loaded.__spec__
-            self.bootstrap._SpecMethods(self.spec).exec(loaded)
+            self.bootstrap._SpecMethods(self.spec).exec_(loaded)
 
         self.assertEqual(loaded.__name__, self.spec.name)
         self.assertIs(loaded.__loader__, self.spec.loader)
@@ -519,7 +519,7 @@ class ModuleSpecMethodsTests:
         self.spec.loader = LegacyLoader()
         with CleanImport(self.spec.name):
             loaded = self.bootstrap._SpecMethods(self.spec).load()
-            reloaded = self.bootstrap._SpecMethods(self.spec).exec(loaded)
+            reloaded = self.bootstrap._SpecMethods(self.spec).exec_(loaded)
             installed = sys.modules[self.spec.name]
 
         self.assertEqual(loaded.ham, -1)
@@ -533,7 +533,7 @@ class ModuleSpecMethodsTests:
                          init=init, machinery=machinery, util=util)
 
 
-class ModuleReprTests:
+class ModuleReprTests(object):
 
     @property
     def bootstrap(self):
@@ -544,7 +544,7 @@ class ModuleReprTests:
         self.spec = self.machinery.ModuleSpec('spam', TestLoader())
 
     def test_module___loader___module_repr(self):
-        class Loader:
+        class Loader(object):
             def module_repr(self, module):
                 return '<delicious {}>'.format(module.__name__)
         self.module.__loader__ = Loader()
@@ -628,7 +628,7 @@ class ModuleReprTests:
                          init=init, machinery=machinery, util=util)
 
 
-class FactoryTests:
+class FactoryTests(object):
 
     def setUp(self):
         self.name = 'spam'
@@ -652,7 +652,7 @@ class FactoryTests:
         self.assertFalse(spec.has_location)
 
     def test_spec_from_loader_default_with_bad_is_package(self):
-        class Loader:
+        class Loader(object):
             def is_package(self, name):
                 raise ImportError
         loader = Loader()
@@ -828,7 +828,7 @@ class FactoryTests:
         self.assertTrue(spec.has_location)
 
     def test_spec_from_file_location_loader_no_location_bad_get_filename(self):
-        class Loader:
+        class Loader(object):
             def get_filename(self, name):
                 raise ImportError
         loader = Loader()
@@ -894,7 +894,7 @@ class FactoryTests:
         self.assertTrue(spec.has_location)
 
     def test_spec_from_file_location_smsl_default_not_package(self):
-        class Loader:
+        class Loader(object):
             def is_package(self, name):
                 return False
         loader = Loader()
@@ -922,7 +922,7 @@ class FactoryTests:
         self.assertTrue(spec.has_location)
 
     def test_spec_from_file_location_smsl_default_bad_is_package(self):
-        class Loader:
+        class Loader(object):
             def is_package(self, name):
                 raise ImportError
         loader = Loader()

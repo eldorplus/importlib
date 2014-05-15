@@ -1,4 +1,7 @@
 """Utility code for constructing importers, etc."""
+from . import _fixers
+_fixers.inject_importlib(__name__)
+
 from . import abc
 from ._bootstrap import MAGIC_NUMBER
 from ._bootstrap import cache_from_source
