@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import argparse
 from contextlib import contextmanager
 import os
@@ -13,6 +15,7 @@ COPIED = {'Lib/importlib/': 'importlib2',
           'Lib/test/test_importlib/': 'tests/test_importlib',
           'Lib/test/lock_tests.py': 'tests',
           'Lib/test/support/': 'tests/support',
+          'Lib/threading.py': 'tests/support',
           }
 
 
