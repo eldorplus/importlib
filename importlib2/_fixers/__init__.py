@@ -45,7 +45,6 @@ def inject_importlib(name):
     mod = sys.modules[name]
     newname = name.replace('importlib2', 'importlib')
     sys.modules[newname] = mod
-#    print('{:25} {:25} {}'.format(name, mod.__name__, newname))
 
 
 def fix_bootstrap(bootstrap, sys, imp):
@@ -60,7 +59,7 @@ def fix_bootstrap(bootstrap, sys, imp):
     fix_imp(imp)
     fix_os()
     fix_io()
-    fix_threading()
+    fix_thread()
 
     class Module(type(sys)):
         def __init__(self, name):
@@ -108,6 +107,11 @@ def fix_collections():
 
 
 def fix_threading():
+    from . import threading
+    sys.modules['threading'] = threading
+
+
+def fix_thread():
     try:
         import _thread
     except ImportError:
@@ -115,6 +119,9 @@ def fix_threading():
         sys.modules['_thread'] = _thread
     if not hasattr(_thread, 'TIMEOUT_MAX'):
         _thread.TIMEOUT_MAX = 10  # XXX Make it accurate.
+
+    if not hasattr(_thread, '_set_sentinel'):
+        _thread._set_sentinel = lambda: _thread.allocate_lock()
 
 
 def fix_types():

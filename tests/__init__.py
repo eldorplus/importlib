@@ -17,6 +17,7 @@ from importlib2 import _fixers
 _fixers.fix_collections()
 _fixers.fix_types()
 _fixers.fix_unittest()
+_fixers.fix_threading()
 
 # Swap in tests.
 from . import support
