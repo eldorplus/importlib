@@ -12,7 +12,7 @@ frozen_machinery, source_machinery = util.import_importlib('importlib.machinery'
 
 @unittest.skipIf(util.EXTENSIONS.filename is None, '_testcapi not available')
 @util.case_insensitive_tests
-class ExtensionModuleCaseSensitivityTest:
+class ExtensionModuleCaseSensitivityTest(object):
 
     def find_module(self):
         good_name = util.EXTENSIONS.name

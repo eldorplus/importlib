@@ -6,7 +6,7 @@ import unittest
 from . import util as test_util
 
 
-class CollectInit:
+class CollectInit(object):
 
     def __init__(self, *args, **kwargs):
         self.args = args

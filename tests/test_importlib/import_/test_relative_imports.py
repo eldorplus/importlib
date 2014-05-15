@@ -3,7 +3,7 @@ from .. import util
 import sys
 import unittest
 
-class RelativeImports:
+class RelativeImports(object):
 
     """PEP 328 introduced relative imports. This allows for imports to occur
     from within a package without having to specify the actual package name.

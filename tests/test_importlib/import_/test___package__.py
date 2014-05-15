@@ -8,7 +8,7 @@ import unittest
 from .. import util
 
 
-class Using__package__:
+class Using__package__(object):
 
     """Use of __package__ supercedes the use of __name__/__path__ to calculate
     what package a module belongs to. The basic algorithm is [__package__]::
@@ -82,7 +82,7 @@ Frozen_UsingPackagePEP451, Source_UsingPackagePEP451 = util.test_both(
         Using__package__PEP302, __import__=util.__import__)
 
 
-class Setting__package__:
+class Setting__package__(object):
 
     """Because __package__ is a new feature, it is not always set by a loader.
     Import will set it as needed to help with the transition to relying on

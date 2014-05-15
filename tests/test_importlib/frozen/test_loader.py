@@ -179,7 +179,7 @@ Frozen_LoaderTests, Source_LoaderTests = util.test_both(LoaderTests,
                                                         machinery=machinery)
 
 
-class InspectLoaderTests:
+class InspectLoaderTests(object):
 
     """Tests for the InspectLoader methods for FrozenImporter."""
 

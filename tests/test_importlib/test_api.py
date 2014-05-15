@@ -13,7 +13,7 @@ import unittest
 import warnings
 
 
-class ImportModuleTests:
+class ImportModuleTests(object):
 
     """Test importlib.import_module."""
 
@@ -74,32 +74,32 @@ class ImportModuleTests:
         with self.assertRaises(TypeError):
             self.init.import_module('.support')
 
-
     def test_loaded_once(self):
         # Issue #13591: Modules should only be loaded once when
         # initializing the parent package attempts to import the
         # module currently being imported.
-        b_load_count = 0
-        def load_a():
-            self.init.import_module('a.b')
-        def load_b():
-            nonlocal b_load_count
-            b_load_count += 1
-        code = {'a': load_a, 'a.b': load_b}
+        class Loaded(object):
+            b_load_count = 0
+            def load_a(s):
+                self.init.import_module('a.b')
+            def load_b(s):
+                s.b_load_count += 1
+        loaded = Loaded()
+        code = {'a': loaded.load_a, 'a.b': loaded.load_b}
         modules = ['a.__init__', 'a.b']
         with test_util.mock_modules(*modules, module_code=code) as mock:
             with test_util.import_state(meta_path=[mock]):
                 self.init.import_module('a.b')
-        self.assertEqual(b_load_count, 1)
+        self.assertEqual(loaded.b_load_count, 1)
 
 (Frozen_ImportModuleTests,
  Source_ImportModuleTests
  ) = test_util.test_both(ImportModuleTests, init=init)
 
 
-class FindLoaderTests:
+class FindLoaderTests(object):
 
-    class FakeMetaFinder:
+    class FakeMetaFinder(object):
         @staticmethod
         def find_module(name, path=None): return name, path
 
@@ -176,7 +176,7 @@ class FindLoaderTests:
  ) = test_util.test_both(FindLoaderTests, init=init)
 
 
-class ReloadTests:
+class ReloadTests(object):
 
     """Test module reloading for builtin and extension modules."""
 
@@ -348,11 +348,11 @@ class ReloadTests:
  ) = test_util.test_both(ReloadTests, init=init, util=util)
 
 
-class InvalidateCacheTests:
+class InvalidateCacheTests(object):
 
     def test_method_called(self):
         # If defined the method should be called.
-        class InvalidatingNullFinder:
+        class InvalidatingNullFinder(object):
             def __init__(self, *ignored):
                 self.called = False
             def find_module(self, *args):
@@ -395,7 +395,7 @@ class FrozenImportlibTests(unittest.TestCase):
                             'FrozenImporter')
 
 
-class StartupTests:
+class StartupTests(object):
 
     def test_everyone_has___loader__(self):
         # Issue #17098: all modules should have __loader__ defined.

@@ -5,7 +5,7 @@ from types import MethodType
 import unittest
 
 
-class UseCache:
+class UseCache(object):
 
     """When it comes to sys.modules, import prefers it over anything else.
 
@@ -48,7 +48,8 @@ class ImportlibUseCache(UseCache, unittest.TestCase):
 
     __import__ = util.__import__[1]
 
-    def create_mock(self, *names, return_=None):
+    def create_mock(self, *names, **kwargs):
+        return_ = kwargs.pop('return_', None)
         mock = util.mock_modules(*names)
         original_load = mock.load_module
         def load_module(self, fullname):
