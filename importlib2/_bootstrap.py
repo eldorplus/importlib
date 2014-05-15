@@ -2100,7 +2100,11 @@ class FileFinder(object):
         path = self.path
         try:
             contents = _os.listdir(path or _os.getcwd())
-        except (FileNotFoundError, PermissionError, NotADirectoryError):
+        except IOError as e:
+            import errno
+            IGNORED = (errno.ENOENT, errno.EACCES, errno.EPERM, errno.ENOTDIR)
+            if e.errno not in IGNORED:
+                raise
             # Directory has either been removed, turned into a file, or made
             # unreadable.
             contents = []
