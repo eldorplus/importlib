@@ -32,11 +32,15 @@ Extra Files
 ``importlib2`` adds the following files to ``importlib`` (relative to
 package's root directory):
 
+* ``_fixers/`` - the code used to monkeypatch importlib2 at run-time
 * ``_version/__init__.py`` - contains the ``importlib2`` version
    information
 * ``_version/ORIGINAL_PY_VERSION`` - the major/minor/micro version of the
    cpython from which ``importlib2`` was most recently pulled
 * ``_version/ORIGINAL_PY_REVISION`` - the revision of the cpython repo
+   from which ``importlib2`` was most recently pulled
+* ``_version/RELEASE`` - the ``importlib2`` release identifier relative
+   to ``ORIGINAL_PY_VERSION`` (an increasing integer)
    from which ``importlib2`` was most recently pulled
 * ``hook.py`` - the module used to set ``importlib2`` as Python's import
    system (not in the ``clean-cpython`` branch)
