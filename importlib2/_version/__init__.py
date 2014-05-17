@@ -21,7 +21,7 @@ PY_REVISION_FILE = os.path.join(DATA_DIR, 'ORIGINAL_PY_REVISION')
 # See http://www.python.org/dev/peps/pep-0440/#public-version-identifiers.
 
 with open(PY_VERSION_FILE) as _py_version_file:
-    PY_VERSION = _py_version_file.read()
-with open(PY_VERSION_FILE) as _release_file:
-    RELEASE = _release_file.read()
+    PY_VERSION = _py_version_file.read().strip()
+with open(RELEASE_FILE) as _release_file:
+    RELEASE = _release_file.read().strip()
 VERSION = '{}.{}'.format(PY_VERSION, RELEASE)
