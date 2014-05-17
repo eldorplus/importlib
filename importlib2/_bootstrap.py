@@ -451,7 +451,7 @@ def _call_with_frames_removed(f, *args, **kwds):
 # longer be understood by older implementations of the eval loop (usually
 # due to the addition of new opcodes).
 
-# MAGIC_NUMBER moved to _setup().
+# MAGIC_NUMBER moved to _fixers.fix_bootstrap()
 
 _PYCACHE = '__pycache__'
 
@@ -2416,7 +2416,7 @@ def _setup(sys_module, _imp_module):
     modules, those two modules must be explicitly passed in.
 
     """
-    global _imp, sys, BYTECODE_SUFFIXES, MAGIC_NUMBER
+    global _imp, sys, BYTECODE_SUFFIXES
     _imp = _imp_module
     sys = sys_module
 
@@ -2424,8 +2424,6 @@ def _setup(sys_module, _imp_module):
         BYTECODE_SUFFIXES = OPTIMIZED_BYTECODE_SUFFIXES
     else:
         BYTECODE_SUFFIXES = DEBUG_BYTECODE_SUFFIXES
-
-    MAGIC_NUMBER = _imp.get_magic()
 
     # Set up the spec for existing builtin/frozen modules.
     module_type = type(sys)

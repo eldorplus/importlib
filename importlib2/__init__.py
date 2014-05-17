@@ -16,9 +16,9 @@ except ImportError:
 import sys
 
 from . import _fixers
-_fixers.inject_importlib(__name__)
+_fixers.fix_importlib(__name__, sys, _imp)
 from . import _bootstrap
-_fixers.fix_bootstrap(_bootstrap, sys, _imp)
+_fixers.fix_bootstrap(_bootstrap)
 _bootstrap._setup(sys, _imp)
 
 # To simplify imports in test code

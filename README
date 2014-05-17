@@ -17,7 +17,7 @@ the import system.
 API
 ---
 
-See https://docs.python.org/3.5/library/importlib.html.
+See https://docs.python.org/dev/library/importlib.html.
 
 
 Building and Installing
