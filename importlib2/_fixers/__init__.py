@@ -6,26 +6,6 @@ import imp
 import sys
 
 
-def kwonly(names):
-    # decorator factory to replace the kw-only syntax
-    if isinstance(names, str):
-        names = names.replace(',', ' ').split()
-    def decorator(f):
-        # XXX Return a wrapper that enforces kw-only.
-        return f
-    return decorator
-
-
-def inject_importlib(name, *, _target='importlib2'):
-    # for importlib and its submodules
-    if name != _target and not name.startswith(_target+'.'):
-        return
-    mod = sys.modules[name]
-    newname = name.replace('importlib2', 'importlib')
-    sys.modules[newname] = mod
-    return mod
-
-
 #################################################
 # data external to importlib
 
@@ -42,6 +22,7 @@ else:
         exec("""exec _code_ in _globs_, _locs_""")
 
 
+# Additive but idempotent.
 def get_magic():
     try:
         return sys.implementation.pyc_magic_bytes
@@ -53,14 +34,17 @@ def get_magic():
         return sys.implementation.pyc_magic_bytes
 
 
+# inert/informational
 def get_ext_suffixes():
     # XXX Finish...
     return []
 
 
+# Additive but idempotent.
 def make_impl(name=None, version=None, cache_tag=None):
     hexversion = None
     if name is None:
+        import platform
         name = platform.python_implementation().lower()
     if version is None:
         version = sys.version_info
@@ -85,14 +69,63 @@ def make_impl(name=None, version=None, cache_tag=None):
 
 
 #################################################
+# only for importlib
+
+def kwonly(names):
+    # decorator factory to replace the kw-only syntax
+    if isinstance(names, str):
+        names = names.replace(',', ' ').split()
+    def decorator(f):
+        # XXX Return a wrapper that enforces kw-only.
+        return f
+    return decorator
+
+
+# Destructive but idempotent.
+def inject_importlib(name, *, _target='importlib2'):
+    # for importlib2 and its submodules
+    if name != _target:
+        if not name.startswith(_target+'.'):
+            return
+        if sys.modules['importlib'].__name__ != _target:
+            # Only clobber if importlib got clobbered.
+            return
+
+    mod = sys.modules[name]
+    # XXX Copy into existing namespace instead of replacing?
+    newname = name.replace('importlib2', 'importlib')
+    sys.modules[newname] = mod
+
+    # XXX Tie this directly to "importlib"?
+#    if name == _target + '._bootstrap':
+#        # XXX Inject _boostrap into _frozen_importlib (if it exists)?
+#        if not sys.modules.get('importlib._bootstrap'):
+#            sys.modules['_frozen_importlib'] = bootstrap
+
+    return mod
+
+
+def install_importlib():
+    # Use for hook.install() and tests.
+    # XXX install __import__() vs. inject importlib2...
+
+    # inject destructively
+    # XXX Update all existing modules.
+    raise NotImplementedError
+
+
+#################################################
 # for importlib2.__init__()
+
+# None of these should be destructive!
 
 def fix_importlib(name, sys, _imp):
     fix_sys(sys)
     fix_imp(_imp)
-    inject_importlib(name)
+#    inject_importlib(name)
 
 
+# Additive but idempotent.
 def fix_types():
     import types
     if not hasattr(types, 'SimpleNamespace'):
@@ -122,12 +155,14 @@ def fix_types():
     return types
 
 
+# Additive but idempotent.
 def fix_sys(sys):
     if not hasattr(sys, 'implementation'):
         sys.implementation = make_impl()
     get_magic()  # Force setting of sys.implementation.pyc_magic_bytes.
 
 
+# Additive but idempotent.
 def fix_imp(_imp=None):
     if _imp is None:
         try:
@@ -158,11 +193,7 @@ def fix_imp(_imp=None):
 
 
 def fix_bootstrap(bootstrap):
-    inject_importlib(bootstrap.__name__)
-
-    # XXX Inject _boostrap into _frozen_importlib (if it exists)?
-    if not sys.modules.get('importlib._bootstrap'):
-        sys.modules['_frozen_importlib'] = bootstrap
+#    inject_importlib(bootstrap.__name__)
 
     fix_builtins()
     fix_os()
@@ -183,10 +214,12 @@ def fix_bootstrap(bootstrap):
     bootstrap._new_module = Module
 
 
+# Additive but idempotent.
 def fix_builtins(builtins=builtins):
     sys.modules.setdefault('builtins', builtins)
 
 
+# Additive but idempotent.
 def fix_os(os=None):
     if os is None:
         os = __import__('os')
@@ -204,10 +237,12 @@ def fix_os(os=None):
         os.fsdecode = lambda s: s
 
 
+# ???
 def fix_io():
     import _io
 
 
+# Additive but idempotent.
 def fix_thread():
     try:
         import _thread
@@ -224,6 +259,9 @@ def fix_thread():
 #################################################
 # for tests
 
+# These may be destructive.
+
+# Additive but idempotent.
 def fix_collections():
     try:
         import collections.abc
@@ -233,15 +271,18 @@ def fix_collections():
         sys.modules['collections.abc'] = collections
 
 
+# Destructive!
 def fix_threading():
     from . import threading
     sys.modules['threading'] = threading
 
 
+# Additive but idempotent.
 def fix_unittest():
     import unittest
-    from contextlib import contextmanager
-    @contextmanager
-    def subTest(self, *args, **kwargs):
-        yield
-    unittest.TestCase.subTest = subTest
+    if not hasattr(unittest.TestCase, 'subTest'):
+        from contextlib import contextmanager
+        @contextmanager
+        def subTest(self, *args, **kwargs):
+            yield
+        unittest.TestCase.subTest = subTest
