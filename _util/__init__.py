@@ -28,7 +28,7 @@ def read_py_version(source):
             if not match:
                 continue
             version, = match.groups()
-            return version
+            return version.strip()
         else:
             raise RuntimeError('unable to find Python version')
 
