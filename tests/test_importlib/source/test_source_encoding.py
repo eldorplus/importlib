@@ -1,5 +1,4 @@
 from .. import util
-from . import util as source_util
 
 machinery = util.import_importlib('importlib.machinery')
 
@@ -18,7 +17,7 @@ import warnings
 CODING_RE = re.compile(r'^[ \t\f]*#.*coding[:=][ \t]*([-\w.]+)', re.ASCII)
 
 
-class EncodingTest:
+class EncodingTest(object):
 
     """PEP 3120 makes UTF-8 the default encoding for source code
     [default encoding].
@@ -37,7 +36,7 @@ class EncodingTest:
     module_name = '_temp'
 
     def run_test(self, source):
-        with source_util.create_modules(self.module_name) as mapping:
+        with util.create_modules(self.module_name) as mapping:
             with open(mapping[self.module_name], 'wb') as file:
                 file.write(source)
             loader = self.machinery.SourceFileLoader(self.module_name,
@@ -111,7 +110,7 @@ Frozen_EncodingTestPEP302, Source_EncodingTestPEP302 = util.test_both(
         EncodingTestPEP302, machinery=machinery)
 
 
-class LineEndingTest:
+class LineEndingTest(object):
 
     r"""Source written with the three types of line endings (\n, \r\n, \r)
     need to be readable [cr][crlf][lf]."""
@@ -120,7 +119,7 @@ class LineEndingTest:
         module_name = '_temp'
         source_lines = [b"a = 42", b"b = -13", b'']
         source = line_ending.join(source_lines)
-        with source_util.create_modules(module_name) as mapping:
+        with util.create_modules(module_name) as mapping:
             with open(mapping[module_name], 'wb') as file:
                 file.write(source)
             loader = self.machinery.SourceFileLoader(module_name,

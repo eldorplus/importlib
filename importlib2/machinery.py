@@ -1,5 +1,7 @@
 """The machinery of importlib: finders, loaders, hooks, etc."""
-from __future__ import absolute_import, division, print_function, unicode_literals
+
+from . import _fixers
+_fixers.inject_importlib(__name__)
 
 import _imp
 

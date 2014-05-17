@@ -6,7 +6,7 @@ import unittest
 
 
 @unittest.skipUnless(sys.platform.startswith('win'), 'requires Windows')
-class WindowsRegistryFinderTests:
+class WindowsRegistryFinderTests(object):
 
     # XXX Need a test that finds the spec via the registry.
 

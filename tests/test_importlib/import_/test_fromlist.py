@@ -1,10 +1,9 @@
 """Test that the semantics relating to the 'fromlist' argument are correct."""
 from .. import util
-from . import util as import_util
 import unittest
 
 
-class ReturnValue:
+class ReturnValue(object):
 
     """The use of fromlist influences what import returns.
 
@@ -30,10 +29,10 @@ class ReturnValue:
                 self.assertEqual(module.__name__, 'pkg.module')
 
 Frozen_ReturnValue, Source_ReturnValue = util.test_both(
-        ReturnValue, __import__=import_util.__import__)
+        ReturnValue, __import__=util.__import__)
 
 
-class HandlingFromlist:
+class HandlingFromlist(object):
 
     """Using fromlist triggers different actions based on what is being asked
     of it.
@@ -122,7 +121,7 @@ class HandlingFromlist:
                 self.assertEqual(module.module2.__name__, 'pkg.module2')
 
 Frozen_FromList, Source_FromList = util.test_both(
-        HandlingFromlist, __import__=import_util.__import__)
+        HandlingFromlist, __import__=util.__import__)
 
 
 if __name__ == '__main__':

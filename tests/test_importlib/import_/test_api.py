@@ -1,5 +1,4 @@
 from .. import util
-from . import util as import_util
 
 from importlib import machinery
 import sys
@@ -10,7 +9,7 @@ PKG_NAME = 'fine'
 SUBMOD_NAME = 'fine.bogus'
 
 
-class BadSpecFinderLoader:
+class BadSpecFinderLoader(object):
     @classmethod
     def find_spec(cls, fullname, path=None, target=None):
         if fullname == SUBMOD_NAME:
@@ -23,7 +22,7 @@ class BadSpecFinderLoader:
             raise ImportError('I cannot be loaded!')
 
 
-class BadLoaderFinder:
+class BadLoaderFinder(object):
     @classmethod
     def find_module(cls, fullname, path):
         if fullname == SUBMOD_NAME:
@@ -35,7 +34,7 @@ class BadLoaderFinder:
             raise ImportError('I cannot be loaded!')
 
 
-class APITest:
+class APITest(object):
 
     """Test API-specific details for __import__ (e.g. raising the right
     exception when passing in an int for the module name)."""
@@ -80,14 +79,14 @@ class OldAPITests(APITest):
     bad_finder_loader = BadLoaderFinder
 
 Frozen_OldAPITests, Source_OldAPITests = util.test_both(
-        OldAPITests, __import__=import_util.__import__)
+        OldAPITests, __import__=util.__import__)
 
 
 class SpecAPITests(APITest):
     bad_finder_loader = BadSpecFinderLoader
 
 Frozen_SpecAPITests, Source_SpecAPITests = util.test_both(
-        SpecAPITests, __import__=import_util.__import__)
+        SpecAPITests, __import__=util.__import__)
 
 
 if __name__ == '__main__':

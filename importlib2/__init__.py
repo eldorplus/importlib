@@ -1,9 +1,5 @@
 """A pure Python implementation of import."""
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 __all__ = ['__import__', 'import_module', 'invalidate_caches', 'reload']
-
-__version__ = (0, 1, 0)
 
 # Bootstrap help #####################################################
 
@@ -20,32 +16,10 @@ except ImportError:
 import sys
 
 from . import _fixers
-_fixers.fix_imp(_imp)
-_fixers.fix_sys(sys)
-_fixers.fix_os()
-_fixers.fix_builtins()
-
-#try:
-#    import _frozen_importlib as _bootstrap
-#except ImportError:
-#    from . import _bootstrap
-#    _bootstrap._setup(sys, _imp)
-#else:
-#    # importlib._bootstrap is the built-in import, ensure we don't create
-#    # a second copy of the module.
-#    _bootstrap.__name__ = 'importlib._bootstrap'
-#    _bootstrap.__package__ = 'importlib'
-#    try:
-#        _bootstrap.__file__ = __file__.replace('__init__.py', '_bootstrap.py')
-#    except NameError:
-#        # __file__ is not guaranteed to be defined, e.g. if this code gets
-#        # frozen by a tool like cx_Freeze.
-#        pass
-#    sys.modules['importlib._bootstrap'] = _bootstrap
+_fixers.inject_importlib(__name__)
 from . import _bootstrap
-_fixers.fix_bootstrap(_bootstrap)
-if not hasattr(_bootstrap, 'BYTECODE_SUFFIXES'):
-    _bootstrap._setup(sys, _imp)
+_fixers.fix_bootstrap(_bootstrap, sys, _imp)
+_bootstrap._setup(sys, _imp)
 
 # To simplify imports in test code
 _w_long = _bootstrap._w_long
@@ -98,9 +72,9 @@ def find_loader(name, path=None):
         return None
     if spec.loader is None:
         if spec.submodule_search_locations is None:
-            raise _fixers.NewImportError('spec for {} missing loader'.format(name),
+            raise ImportError('spec for {} missing loader'.format(name),
                               name=name)
-        raise _fixers.NewImportError('namespace packages do not have loaders',
+        raise ImportError('namespace packages do not have loaders',
                           name=name)
     return spec.loader
 
@@ -144,7 +118,7 @@ def reload(module):
 
     if sys.modules.get(name) is not module:
         msg = "module {} not in sys.modules"
-        raise _fixers.NewImportError(msg.format(name), name=name)
+        raise ImportError(msg.format(name), name=name)
     if name in _RELOADING:
         return _RELOADING[name]
     _RELOADING[name] = module
@@ -155,7 +129,7 @@ def reload(module):
                 parent = sys.modules[parent_name]
             except KeyError:
                 msg = "parent {!r} not in sys.modules"
-                raise _fixers.NewImportError(msg.format(parent_name), name=parent_name)
+                raise ImportError(msg.format(parent_name), name=parent_name)
             else:
                 pkgpath = parent.__path__
         else:
@@ -163,7 +137,7 @@ def reload(module):
         target = module
         spec = module.__spec__ = _bootstrap._find_spec(name, pkgpath, target)
         methods = _bootstrap._SpecMethods(spec)
-        getattr(methods, 'exec')(module)
+        methods.exec_(module)
         # The module may have replaced itself in sys.modules!
         return sys.modules[name]
     finally:

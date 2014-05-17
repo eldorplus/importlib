@@ -1,5 +1,6 @@
 """Utility code for constructing importers, etc."""
-from __future__ import absolute_import, division, print_function, unicode_literals
+from . import _fixers
+_fixers.inject_importlib(__name__)
 
 from . import abc
 from ._bootstrap import MAGIC_NUMBER

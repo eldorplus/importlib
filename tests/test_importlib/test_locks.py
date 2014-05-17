@@ -18,7 +18,7 @@ else:
     from test import lock_tests
 
 if threading is not None:
-    class ModuleLockAsRLockTests:
+    class ModuleLockAsRLockTests(object):
         locktype = classmethod(lambda cls: cls.LockType("some_lock"))
 
         # _is_owned() unsupported
@@ -47,7 +47,7 @@ else:
         pass
 
 
-class DeadlockAvoidanceTests:
+class DeadlockAvoidanceTests(object):
 
     def setUp(self):
         try:
@@ -117,7 +117,7 @@ class Source_DeadlockAvoidanceTests(DeadlockAvoidanceTests, unittest.TestCase):
     DeadlockError = source_bootstrap._DeadlockError
 
 
-class LifetimeTests:
+class LifetimeTests(object):
 
     def test_lock_lifetime(self):
         name = "xyzzy"

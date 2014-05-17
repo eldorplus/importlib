@@ -1,8 +1,5 @@
 """Supporting definitions for the Python regression tests."""
-
-if __name__ != 'tests.support':
-    raise Exception(__name__)
-    raise ImportError('support must be imported from the test package')
+from __future__ import print_function
 
 import contextlib
 import errno
@@ -17,10 +14,7 @@ import warnings
 import unittest
 import importlib
 import importlib.util
-try:
-    from collections.abc import MutableMapping
-except ImportError:
-    from collections import MutableMapping
+import collections.abc
 import re
 import subprocess
 import time
@@ -135,7 +129,7 @@ def _ignore_deprecated_imports(ignore=True):
         yield
 
 
-def import_module(name, deprecated=False, *, required_on=()):
+def import_module(name, deprecated=False, required_on=()):
     """Import and return the module to be tested, raising SkipTest if
     it is not available.
 
@@ -382,12 +376,16 @@ def forget(modname):
         unlink(importlib.util.cache_from_source(source, debug_override=True))
         unlink(importlib.util.cache_from_source(source, debug_override=False))
 
-# On some platforms, should not run gui test even if it is allowed
-# in `use_resources'.
-if sys.platform.startswith('win'):
-    import ctypes
-    import ctypes.wintypes
-    def _is_gui_available():
+# Check whether a gui is actually available
+def _is_gui_available():
+    if hasattr(_is_gui_available, 'result'):
+        return _is_gui_available.result
+    reason = None
+    if sys.platform.startswith('win'):
+        # if Python is running as a service (such as the buildbot service),
+        # gui interaction may be disallowed
+        import ctypes
+        import ctypes.wintypes
         UOI_FLAGS = 1
         WSF_VISIBLE = 0x0001
         class USEROBJECTFLAGS(ctypes.Structure):
@@ -407,10 +405,51 @@ if sys.platform.startswith('win'):
             ctypes.byref(needed))
         if not res:
             raise ctypes.WinError()
-        return bool(uof.dwFlags & WSF_VISIBLE)
-else:
-    def _is_gui_available():
-        return True
+        if not bool(uof.dwFlags & WSF_VISIBLE):
+            reason = "gui not available (WSF_VISIBLE flag not set)"
+    elif sys.platform == 'darwin':
+        # The Aqua Tk implementations on OS X can abort the process if
+        # being called in an environment where a window server connection
+        # cannot be made, for instance when invoked by a buildbot or ssh
+        # process not running under the same user id as the current console
+        # user.  To avoid that, raise an exception if the window manager
+        # connection is not available.
+        from ctypes import cdll, c_int, pointer, Structure
+        from ctypes.util import find_library
+
+        app_services = cdll.LoadLibrary(find_library("ApplicationServices"))
+
+        if app_services.CGMainDisplayID() == 0:
+            reason = "gui tests cannot run without OS X window manager"
+        else:
+            class ProcessSerialNumber(Structure):
+                _fields_ = [("highLongOfPSN", c_int),
+                            ("lowLongOfPSN", c_int)]
+            psn = ProcessSerialNumber()
+            psn_p = pointer(psn)
+            if (  (app_services.GetCurrentProcess(psn_p) < 0) or
+                  (app_services.SetFrontProcess(psn_p) < 0) ):
+                reason = "cannot run without OS X gui process"
+
+    # check on every platform whether tkinter can actually do anything
+    # but skip the test on OS X because it can cause segfaults in Cocoa Tk
+    # when running regrtest with the -j option (multiple threads/subprocesses)
+    if (not reason) and (sys.platform != 'darwin'):
+        try:
+            from tkinter import Tk
+            root = Tk()
+            root.destroy()
+        except Exception as e:
+            err_string = str(e)
+            if len(err_string) > 50:
+                err_string = err_string[:50] + ' [...]'
+            reason = 'Tk unavailable due to {}: {}'.format(type(e).__name__,
+                                                           err_string)
+
+    _is_gui_available.reason = reason
+    _is_gui_available.result = not reason
+
+    return _is_gui_available.result
 
 def is_resource_enabled(resource):
     """Test whether a resource is enabled.  Known resources are set by
@@ -425,7 +464,7 @@ def requires(resource, msg=None):
     executing.
     """
     if resource == 'gui' and not _is_gui_available():
-        raise unittest.SkipTest("Cannot use the 'gui' resource")
+        raise ResourceDenied(_is_gui_available.reason)
     # see if the caller's module is __main__ - if so, treat as if
     # the resource was set
     if sys._getframe(1).f_globals.get("__name__") == "__main__":
@@ -751,8 +790,9 @@ elif sys.platform != 'darwin':
         b'\xff'.decode(TESTFN_ENCODING)
     except UnicodeDecodeError:
         # 0xff will be encoded using the surrogate character u+DCFF
-        TESTFN_UNENCODABLE = TESTFN \
-            + b'-\xff'.decode(TESTFN_ENCODING, 'surrogateescape')
+#        TESTFN_UNENCODABLE = TESTFN \
+#            + b'-\xff'.decode(TESTFN_ENCODING, 'surrogateescape')
+        pass  # XXX Fix this?
     else:
         # File system encoding (eg. ISO-8859-* encodings) can encode
         # the byte 0xff. Skip some unicode filename tests.
@@ -1102,7 +1142,7 @@ class CleanImport(object):
         sys.modules.update(self.original_modules)
 
 
-class EnvironmentVarGuard(MutableMapping):
+class EnvironmentVarGuard(collections.abc.MutableMapping):
 
     """Class to help protect the environment variable properly.  Can be used as
     a context manager."""
@@ -1214,7 +1254,7 @@ ioerror_peer_reset = TransientResource(OSError, errno=errno.ECONNRESET)
 
 
 @contextlib.contextmanager
-def transient_internet(resource_name, *, timeout=30.0, errnos=()):
+def transient_internet(resource_name, timeout=30.0, errnos=()):
     """Return a context manager that raises ResourceDenied when various issues
     with the Internet connection manifest themselves as exceptions."""
     default_errnos = [
@@ -1249,7 +1289,8 @@ def transient_internet(resource_name, *, timeout=30.0, errnos=()):
             n in captured_errnos):
             if not verbose:
                 sys.stderr.write(denied.args[0] + "\n")
-            raise denied from err
+            denied.__cause__ = err
+            raise denied
 
     old_timeout = socket.getdefaulttimeout()
     try:
@@ -1489,7 +1530,7 @@ def set_memlimit(limit):
         raise ValueError('Memory limit %r too low to be useful' % (limit,))
     max_memuse = memlimit
 
-class _MemoryWatchdog:
+class _MemoryWatchdog(object):
     """An object which periodically watches the process' memory consumption
     and prints it out.
     """
@@ -1582,7 +1623,7 @@ def bigaddrspacetest(f):
 #=======================================================================
 # unittest integration.
 
-class BasicTestRunner:
+class BasicTestRunner(object):
     def run(self, test):
         result = unittest.TestResult()
         test(result)
@@ -1593,7 +1634,7 @@ def _id(obj):
 
 def requires_resource(resource):
     if resource == 'gui' and not _is_gui_available():
-        return unittest.skip("resource 'gui' is not available")
+        return unittest.skip(_is_gui_available.reason)
     if is_resource_enabled(resource):
         return _id
     else:
@@ -2063,7 +2104,7 @@ def fs_is_case_insensitive(directory):
         os.unlink(base_path)
 
 
-class SuppressCrashReport:
+class SuppressCrashReport(object):
     """Try to prevent a crash report from popping up.
 
     On Windows, don't display the Windows Error Reporting dialog.  On UNIX,
@@ -2178,3 +2219,13 @@ def run_in_subinterp(code):
                                      "memory allocations")
     import _testcapi
     return _testcapi.run_in_subinterp(code)
+
+
+def make_load_tests(modfilename):
+    from tests import PROJECT_ROOT as topdir
+    startdir = os.path.dirname(modfilename)
+    def load_tests(loader, tests, pattern):
+        pkgtests = loader.discover(startdir, pattern or 'test*.py', topdir)
+        tests.addTests(pkgtests)
+        return tests
+    return load_tests

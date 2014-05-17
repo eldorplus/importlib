@@ -4,10 +4,9 @@ import types
 import unittest
 
 from .. import util
-from . import util as import_util
 
 
-class SpecLoaderMock:
+class SpecLoaderMock(object):
 
     def find_spec(self, fullname, path=None, target=None):
         return machinery.ModuleSpec(fullname, self)
@@ -16,7 +15,7 @@ class SpecLoaderMock:
         pass
 
 
-class SpecLoaderAttributeTests:
+class SpecLoaderAttributeTests(object):
 
     def test___loader__(self):
         loader = SpecLoaderMock()
@@ -25,10 +24,10 @@ class SpecLoaderAttributeTests:
         self.assertEqual(loader, module.__loader__)
 
 Frozen_SpecTests, Source_SpecTests = util.test_both(
-        SpecLoaderAttributeTests, __import__=import_util.__import__)
+        SpecLoaderAttributeTests, __import__=util.__import__)
 
 
-class LoaderMock:
+class LoaderMock(object):
 
     def find_module(self, fullname, path=None):
         return self
@@ -38,7 +37,7 @@ class LoaderMock:
         return self.module
 
 
-class LoaderAttributeTests:
+class LoaderAttributeTests(object):
 
     def test___loader___missing(self):
         module = types.ModuleType('blah')
@@ -63,7 +62,7 @@ class LoaderAttributeTests:
 
 
 Frozen_Tests, Source_Tests = util.test_both(LoaderAttributeTests,
-                                            __import__=import_util.__import__)
+                                            __import__=util.__import__)
 
 
 if __name__ == '__main__':

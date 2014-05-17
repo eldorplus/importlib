@@ -1,10 +1,13 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import absolute_import
 
 import abc
 import unittest
 
 
-class FinderTests(metaclass=abc.ABCMeta):
+ABC = abc.ABCMeta('ABC', (), {})
+
+
+class FinderTests(ABC):
 
     """Basic tests for a finder to pass."""
 
@@ -41,7 +44,7 @@ class FinderTests(metaclass=abc.ABCMeta):
         pass
 
 
-class LoaderTests(metaclass=abc.ABCMeta):
+class LoaderTests(ABC):
 
     @abc.abstractmethod
     def test_module(self):

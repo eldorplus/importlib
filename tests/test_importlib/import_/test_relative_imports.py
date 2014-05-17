@@ -1,10 +1,9 @@
 """Test relative imports (PEP 328)."""
 from .. import util
-from . import util as import_util
 import sys
 import unittest
 
-class RelativeImports:
+class RelativeImports(object):
 
     """PEP 328 introduced relative imports. This allows for imports to occur
     from within a package without having to specify the actual package name.
@@ -209,7 +208,7 @@ class RelativeImports:
             self.__import__('sys', level=1)
 
 Frozen_RelativeImports, Source_RelativeImports = util.test_both(
-        RelativeImports, __import__=import_util.__import__)
+        RelativeImports, __import__=util.__import__)
 
 
 if __name__ == '__main__':
