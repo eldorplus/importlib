@@ -4,17 +4,17 @@ import os.path
 import _util
 _util.verify_release_branch()
 
-import importlib2
-
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+
+vers = _util.load_version()
 
 
 #################################################
 # Define the package metadata.
 
 NAME = 'importlib2'  # both for the package and the distribution
-VERSION = importlib2.__version__
+VERSION = vers.VERSION  # No need to use importlib2.__version__.
 AUTHOR = 'Eric Snow'
 EMAIL = 'ericsnowcurrently@gmail.com'
 URL = 'https://bitbucket.org/ericsnowcurrently/importlib2/'
@@ -52,7 +52,13 @@ with open(os.path.join(PROJECT_ROOT, 'README')) as readme_file:
 #################################################
 # Set up packages.
 
-PACKAGES = ['importlib2']
+PACKAGES = ['importlib2', 'importlib2._fixers', 'importlib2._version']
+
+_verfiles = [os.path.basename(filename)
+             for filename in (vers.PY_REVISION_FILE,
+                              vers.PY_VERSION_FILE,
+                              vers.RELEASE_FILE)]
+PACKAGE_DATA = {'importlib2._version': _verfiles}
 
 
 #################################################
@@ -75,6 +81,7 @@ kwargs = {'name': NAME,
           'classifiers': CLASSIFIERS,
 
           'packages': PACKAGES,
+          'package_data': PACKAGE_DATA,
           }
 
 for key in list(kwargs):
