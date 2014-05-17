@@ -15,6 +15,8 @@ except ImportError:
     import imp as _imp
 import sys
 
+from ._version import VERSION as __version__
+
 from . import _fixers
 _fixers.fix_importlib(__name__, sys, _imp)
 from . import _bootstrap
