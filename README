@@ -1,3 +1,98 @@
-A complete backport to 2.7 (and 3.x) of the importlib package from Python 3.  Compatibility is intended to match only the public, non-deprecated API in Python 3.5.
+importlib2
+==========
+
+A complete backport to 2.7 (and 3.x) of the ``importlib`` package from
+Python 3.  Compatibility is intended to match only the latest public,
+non-deprecated importlib API.
+
+
+Usage
+-----
+
+You may use ``importlib2`` as you would any other module.  You may also
+call ``importlib2.hook.install()`` to make Python use ``importlib2`` for
+the import system.
+
+
+API
+---
 
 See https://docs.python.org/3.5/library/importlib.html.
+
+
+Building and Installing
+-----------------------
+
+Use setup.py/pip/setuptools like normal.
+
+
+Extra Files
+-----------
+
+``importlib2`` adds the following files to ``importlib`` (relative to
+package's root directory):
+
+* ``_fixers/`` - the code used to monkeypatch importlib2 at run-time
+* ``_version/__init__.py`` - contains the ``importlib2`` version
+   information
+* ``_version/ORIGINAL_PY_VERSION`` - the major/minor/micro version of the
+   cpython from which ``importlib2`` was most recently pulled
+* ``_version/ORIGINAL_PY_REVISION`` - the revision of the cpython repo
+   from which ``importlib2`` was most recently pulled
+* ``_version/RELEASE`` - the ``importlib2`` release identifier relative
+   to ``ORIGINAL_PY_VERSION`` (an increasing integer)
+   from which ``importlib2`` was most recently pulled
+* ``hook.py`` - the module used to set ``importlib2`` as Python's import
+   system (not in the ``clean-cpython`` branch)
+
+
+Tools
+-----
+
+Each is located in the project root.
+
+* ``pull-cpython.py`` (only in the ``clean-cpython`` branch)
+* ``tests/`` (run ``python -m tests``)
+
+
+Main Branches
+-------------
+
+* ``clean-cpython`` - the relevant importlib files pulled from a cpython
+   repo
+* ``standalone-3.4`` - the files fixed so that the test suite passes
+   using the Python interpreter built from the same cpython repo
+* ``default`` - the files fixed to work under 2.7
+
+Releases are made from the default branch.
+
+
+Merging from cpython
+--------------------
+
+1. from the ``clean-cpython`` branch run ``pull-cpython.py``
+2. commit the change
+3. change to the ``standalone-3.4`` branch
+4. merge from the ``clean-cpython`` branch
+5. make any changes necessary to get the test suite to pass using
+   the same cpython from which the files were most recently pulled
+6. commit the changes (if any)
+7. change to ``default``
+8. merge from the ``standalone-3.4`` branch
+9. make any changes necessary to get the test suite to pass using
+   Python 2.7 (and 3.2)
+10. commit the changes (if any)
+
+XXX Automate this process?
+
+
+Releasing
+---------
+
+<TBD>
+
+
+TODO
+----
+
+<TBD>
