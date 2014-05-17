@@ -68,18 +68,18 @@ if __name__ == '__main__':
     targetrepo = repo_root(args.target)
     print('copying from {} to {}'.format(sourcerepo, targetrepo))
 
-#    for source in sorted(COPIED):
-#        target = COPIED[source]
-#        source = os.path.join(sourcerepo, source)
-#        target = os.path.join(targetrepo, target)
-#        if os.path.isdir(source):
-#            repo_copytree(source, target,
-#                          verbose=args.verbose,
-#                          dryrun=args.dryrun)
-#        else:
-#            repo_copyfile(source, target,
-#                          verbose=args.verbose,
-#                          dryrun=args.dryrun)
+    for source in sorted(COPIED):
+        target = COPIED[source]
+        source = os.path.join(sourcerepo, source)
+        target = os.path.join(targetrepo, target)
+        if os.path.isdir(source):
+            repo_copytree(source, target,
+                          verbose=args.verbose,
+                          dryrun=args.dryrun)
+        else:
+            repo_copyfile(source, target,
+                          verbose=args.verbose,
+                          dryrun=args.dryrun)
 
     save_revision(sourcerepo, targetrepo,
                   verbose=args.verbose,
