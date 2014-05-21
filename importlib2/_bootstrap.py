@@ -2250,8 +2250,16 @@ def _sanity_check(name, package, level):
         raise ValueError('Empty module name')
 
 
-_ERR_MSG_PREFIX = 'No module named '
-_ERR_MSG = _ERR_MSG_PREFIX + '{!r}'
+class ModuleNotFoundError(_ImportError):
+
+    def __init__(self, name, msg=None, **kwargs):
+        error = 'No module named {!r}'.format(name)
+        if msg is None:
+            msg = error
+        else:
+            msg = msg.format(msg=error, name=name)
+        super(ModuleNotFoundError, self).__init__(msg, name=name, **kwargs)
+
 
 def _find_and_load_unlocked(name, import_):
     path = None
@@ -2266,11 +2274,11 @@ def _find_and_load_unlocked(name, import_):
         try:
             path = parent_module.__path__
         except AttributeError:
-            msg = (_ERR_MSG + '; {!r} is not a package').format(name, parent)
-            raise _ImportError(msg, name=name)
+            msg = '{{msg}}; {!r} is not a package'.format(parent)
+            raise ModuleNotFoundError(name, msg)
     spec = _find_spec(name, path)
     if spec is None:
-        raise _ImportError(_ERR_MSG.format(name), name=name)
+        raise ModuleNotFoundError(name)
     else:
         module = _SpecMethods(spec)._load_unlocked()
     if parent:
@@ -2304,9 +2312,9 @@ def _gcd_import(name, package=None, level=0):
     module = sys.modules[name]
     if module is None:
         _imp.release_lock()
-        message = ('import of {} halted; '
-                   'None in sys.modules'.format(name))
-        raise _ImportError(message, name=name)
+        msg = 'import of {name} halted; None in sys.modules'
+        # XXX Keep as _ImportError?
+        raise ModuleNotFoundError(name, msg)
     _lock_unlock_module(name)
     return module
 
@@ -2331,14 +2339,13 @@ def _handle_fromlist(module, fromlist, import_):
                 from_name = '{}.{}'.format(module.__name__, x)
                 try:
                     _call_with_frames_removed(import_, from_name)
-                except ImportError as exc:
+                except ModuleNotFoundError as exc:
                     # Backwards-compatibility dictates we ignore failed
                     # imports triggered by fromlist for modules that don't
                     # exist.
-                    if str(exc).startswith(_ERR_MSG_PREFIX):
-                        exc_name = getattr(exc, 'name', None)  # XXX Fix this?
-                        if exc_name == from_name:
-                            continue
+                    exc_name = getattr(exc, 'name', None)  # XXX Fix this?
+                    if exc_name == from_name:
+                        continue
                     raise
     return module
 
@@ -2411,7 +2418,7 @@ def _builtin_from_name(name):
         raise NotImplementedError
     spec = BuiltinImporter.find_spec(name)
     if spec is None:
-        raise _ImportError('no built-in module named ' + name)
+        raise ModuleNotFoundError(name, 'no built-in module named {name}')
     methods = _SpecMethods(spec)
     return methods._load_unlocked()
 
