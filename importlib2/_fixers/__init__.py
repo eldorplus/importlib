@@ -170,8 +170,6 @@ def fix_imp(_imp=None):
 
 
 def fix_bootstrap(bootstrap):
-#    inject_importlib(bootstrap.__name__)
-
     fix_builtins()
     fix_os()
     fix_io()
