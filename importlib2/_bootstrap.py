@@ -1556,8 +1556,8 @@ class SourceLoader(_LoaderBasics):
         try:
             source_bytes = self.get_data(path)
         except OSError as exc:
-            e = ImportError('source not available through get_data()',
-                            name=fullname)
+            e = _ImportError('source not available through get_data()',
+                             name=fullname)
             e.__cause__ = exc
             raise e
         return decode_source(source_bytes)
