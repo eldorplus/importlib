@@ -66,10 +66,17 @@ def _w_long(x):
 
 def _r_long(int_bytes):
     """Convert 4 bytes in little-endian to an integer."""
-    x = ord(int_bytes[0])
-    x |= ord(int_bytes[1]) << 8
-    x |= ord(int_bytes[2]) << 16
-    x |= ord(int_bytes[3]) << 24
+    try:
+        x = ord(int_bytes[0])
+    except TypeError:
+        x = int_bytes[0]
+        x |= int_bytes[1] << 8
+        x |= int_bytes[2] << 16
+        x |= int_bytes[3] << 24
+    else:
+        x |= ord(int_bytes[1]) << 8
+        x |= ord(int_bytes[2]) << 16
+        x |= ord(int_bytes[3]) << 24
     return x
 
 
