@@ -661,7 +661,7 @@ class SourceLoader(SourceLoader):
 
     def get_data(self, path):
         if path == self.path:
-            return super(SourceLoader. self).get_data(path)
+            return super(SourceLoader, self).get_data(path)
         elif path == self.bytecode_path:
             return self.bytecode
         else:
