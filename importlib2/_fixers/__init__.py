@@ -87,7 +87,8 @@ def inject_importlib(name, *, _target='importlib2'):
     if name != _target:
         if not name.startswith(_target+'.'):
             return
-        if sys.modules['importlib'].__name__ != _target:
+        importlib = sys.modules.get('importlib')
+        if importlib and importlib.__name__ != _target:
             # Only clobber if importlib got clobbered.
             return
 
@@ -96,34 +97,11 @@ def inject_importlib(name, *, _target='importlib2'):
     newname = name.replace('importlib2', 'importlib')
     sys.modules[newname] = mod
 
-    # XXX Tie this directly to "importlib"?
-#    if name == _target + '._bootstrap':
-#        # XXX Inject _boostrap into _frozen_importlib (if it exists)?
-#        if not sys.modules.get('importlib._bootstrap'):
-#            sys.modules['_frozen_importlib'] = bootstrap
-
-    return mod
-
-
-def install_importlib():
-    # Use for hook.install() and tests.
-    # XXX install __import__() vs. inject importlib2...
-
-    # inject destructively
-    # XXX Update all existing modules.
-    raise NotImplementedError
-
 
 #################################################
 # for importlib2.__init__()
 
 # None of these should be destructive!
-
-def fix_importlib(name, sys, _imp):
-    fix_sys(sys)
-    fix_imp(_imp)
-#    inject_importlib(name)
-
 
 # Additive but idempotent.
 def fix_types():

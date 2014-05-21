@@ -160,8 +160,36 @@ def _install___import__():
     _fixers.builtins.__import__ = importlib___import__
 
 
+def _inject_importlib(name, *, _target='importlib2'):
+    # for importlib2 and its submodules
+    if name != _target:
+        if not name.startswith(_target+'.'):
+            return
+        if sys.modules['importlib'].__name__ != _target:
+            # Only clobber if importlib got clobbered.
+            return
+
+    mod = sys.modules[name]
+    # XXX Copy into existing namespace instead of replacing?
+    newname = name.replace('importlib2', 'importlib')
+    sys.modules[newname] = mod
+
+    return mod
+
+
+def inject():
+    _fixers.inject_importlib('importlib2')
+    _fix_import_state()
+    _fix_modules()
+
+    # XXX Tie this directly to "importlib"?
+#    if name == _target + '._bootstrap':
+#        # XXX Inject _boostrap into _frozen_importlib (if it exists)?
+#        if not sys.modules.get('importlib._bootstrap'):
+#            sys.modules['_frozen_importlib'] = bootstrap
+
+
 def install():
     with _locked():
-        _fix_import_state()
-        _fix_modules()
+        inject()
         _install___import__()
