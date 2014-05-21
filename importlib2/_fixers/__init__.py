@@ -35,9 +35,8 @@ def get_magic():
 
 
 # inert/informational
-def get_ext_suffixes():
-    # XXX Finish...
-    return []
+def get_ext_suffixes(imp):
+    return [s for s, _, t in imp.get_suffixes() if t == imp.C_EXTENSION]
 
 
 # Additive but idempotent.
@@ -156,7 +155,7 @@ def fix_imp(_imp=None):
         raise RuntimeError('unrecognized imp: {!r}'.format(_imp.__name__))
     # fix _imp
     if not hasattr(imp, 'extension_suffixes'):
-        ext_suffixes = get_ext_suffixes()
+        ext_suffixes = get_ext_suffixes(imp)
         _imp.extension_suffixes = lambda: ext_suffixes
     if not hasattr(_imp, '_fix_co_filename'):
         # XXX Finish this?
