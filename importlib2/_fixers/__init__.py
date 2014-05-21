@@ -2,6 +2,7 @@ try:
     builtins = __import__('builtins')
 except ImportError:
     builtins = __import__('__builtin__')
+from contextlib import contextmanager
 import imp
 import sys
 
@@ -254,6 +255,16 @@ def fix_threading():
     sys.modules['threading'] = threading
 
 
+@contextmanager
+def swap(obj, attr, value, pop=True):
+    original = getattr(obj, attr)
+    setattr(obj, attr, value)
+    try:
+        yield original if pop else value
+    finally:
+        setattr(obj, attr, original)
+
+
 # Additive but idempotent.
 def fix_unittest():
     import unittest
@@ -263,3 +274,20 @@ def fix_unittest():
         def subTest(self, *args, **kwargs):
             yield
         unittest.TestCase.subTest = subTest
+    try:
+        import unittest.mock
+    except ImportError:
+        def patched(obj, attr):
+            def mocked(*args, **kwargs):
+                try:
+                    exc = mocked.side_effect
+                except AttributeError:
+                    return mocked.return_value
+                else:
+                    raise exc
+            return swap(obj, attr, mocked, pop=False)
+        mock = type(unittest)('mock')
+        mock.patch = lambda: None
+        mock.patch.object = patched
+        sys.modules['unittest.mock'] = mock
+        unittest.mock = mock

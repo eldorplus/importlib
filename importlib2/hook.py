@@ -172,7 +172,8 @@ def inject():
     _fix_modules()
 
 
-def install():
+def install(_inject=True):
     with _locked():
-        inject()
+        if _inject:
+            inject()
         _install___import__()

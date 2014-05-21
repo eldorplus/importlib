@@ -19,6 +19,10 @@ _fixers.fix_types()
 _fixers.fix_unittest()
 _fixers.fix_threading()
 
+# Inject importlib.
+import importlib2.hook
+importlib2.hook.inject()
+
 # Swap in tests.
 from . import support
 sys.modules['test'] = sys.modules[__name__]
@@ -27,5 +31,4 @@ from . import lock_tests
 sys.modules['test.lock_tests'] = lock_tests
 
 # Install the hook.
-import importlib2.hook
-importlib2.hook.install()
+importlib2.hook.install(_inject=False)
