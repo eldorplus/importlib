@@ -154,6 +154,8 @@ def fix_imp(_imp=None):
     else:
         raise RuntimeError('unrecognized imp: {!r}'.format(_imp.__name__))
     # fix _imp
+    if '_imp' not in sys.modules:
+        sys.modules['_imp'] = _imp
     if not hasattr(imp, 'extension_suffixes'):
         ext_suffixes = get_ext_suffixes(imp)
         _imp.extension_suffixes = lambda: ext_suffixes
