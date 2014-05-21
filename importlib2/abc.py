@@ -300,7 +300,7 @@ class SourceLoader(_bootstrap.SourceLoader, ResourceLoader, ExecutionLoader):
     def path_mtime(self, path):
         """Return the (int) modification time for the path (str)."""
 
-        if self.path_stats.__func__ is SourceLoader._MTIME:
+        if self.path_mtime.__func__ is SourceLoader._MTIME:
             raise IOError
         return int(self.path_stats(path)['mtime'])
 
