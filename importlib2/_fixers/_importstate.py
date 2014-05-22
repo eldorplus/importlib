@@ -108,4 +108,5 @@ def verify_import_state():
         assert sys.meta_path[-2] is _bootstrap.FrozenImporter
     assert sys.meta_path[-1] is _bootstrap.PathFinder
     # path importer cache
-    assert not sys.path_importer_cache
+    for finder in sys.path_importer_cache.values():
+        assert not finder.__class__.__module__.startswith('importlib.')
