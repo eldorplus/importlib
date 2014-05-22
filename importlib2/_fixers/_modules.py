@@ -153,12 +153,14 @@ def _copy_loader(loader):
     return copied
 
 
-def _get_loader(mod):
+def _get_loader(mod, spec=None):
     loader = getattr(mod, '__loader__', None)
     if loader is None:
-        spec = getattr(mod, '__spec__', None)
         if spec is None:
-            raise RuntimeError('__spec__ should have been set already')
+            spec = getattr(mod, '__spec__', None)
+            if spec is None:
+                raise RuntimeError('{}: __spec__ should have been set already'
+                                   .format(mod))
         loader = spec.loader
         if loader is None:
             from importlib2 import _bootstrap
@@ -181,7 +183,7 @@ def inject_module(mod):
     spec = _get_spec(mod)
     if spec is None:
         raise RuntimeError('no spec found for {!r}'.format(mod))
-    loader = _get_loader(mod)
+    loader = _get_loader(mod, spec=spec)
     # Fix them up.
     if hasattr(mod, '__loader__') and spec.loader is mod.__loader__:
         # Keep them in sync.

@@ -35,7 +35,11 @@ def fix_unittest():
                 else:
                     raise exc
             return swap(obj, attr, mocked, pop=False)
-        mock = type(unittest)('mock')
+        from importlib2 import _bootstrap
+        mock = _bootstrap._new_module('unittest.mock')
+        mock.__loader__ = _bootstrap.BuiltinImporter
+        mock.__spec__ = _bootstrap.ModuleSpec(mock.__name__, mock.__loader__,
+                                              origin=__file__)
         mock.patch = lambda: None
         mock.patch.object = patched
         sys.modules['unittest.mock'] = mock
