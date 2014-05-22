@@ -2,7 +2,8 @@ import imp
 import sys
 import types
 
-from . import builtins, SimpleNamespace, new_class, get_magic, get_ext_suffixes
+from . import (builtins, SimpleNamespace, new_class, make_impl,
+               get_magic, get_ext_suffixes)
 
 
 # Additive but idempotent.
