@@ -13,11 +13,11 @@ sys.path.insert(0, PROJECT_ROOT)  # Force the right importlib2.
 import importlib2
 
 # Fix up the stdlib.
-from importlib2 import _fixers
+from importlib2._fixers import _stdlib as _fixers
 _fixers.fix_collections()
-_fixers.fix_types()
+#_fixers.fix_types()
 _fixers.fix_unittest()
-_fixers.fix_threading()
+_fixers.inject_threading()
 
 # Inject importlib.
 import importlib2.hook

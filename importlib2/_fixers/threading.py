@@ -1,7 +1,7 @@
 """Thread module emulating a subset of Java's threading model."""
 from __future__ import print_function
 
-from . import fix_thread as _fix_thread
+from ._core import fix_thread as _fix_thread
 _fix_thread()
 
 import sys as _sys
