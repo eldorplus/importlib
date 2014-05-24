@@ -149,6 +149,7 @@ class SeparatedOverlappingNamespacePackages(NamespacePackageTest):
         self.assertEqual(foo.two.attr, 'both_portions foo two')
 
 
+@unittest.skip('namespace packages not supported by zipimport pre-3.3')
 class SingleZipNamespacePackage(NamespacePackageTest):
     paths = ['top_level_portion1.zip']
 
@@ -161,6 +162,7 @@ class SingleZipNamespacePackage(NamespacePackageTest):
             import foo.two
 
 
+@unittest.skip('namespace packages not supported by zipimport pre-3.3')
 class SeparatedZipNamespacePackages(NamespacePackageTest):
     paths = ['top_level_portion1.zip', 'portion2']
 
@@ -173,6 +175,7 @@ class SeparatedZipNamespacePackages(NamespacePackageTest):
         self.assertNotIn('.zip', foo.two.__file__)
 
 
+@unittest.skip('namespace packages not supported by zipimport pre-3.3')
 class SingleNestedZipNamespacePackage(NamespacePackageTest):
     paths = ['nested_portion1.zip/nested_portion1']
 
@@ -185,6 +188,7 @@ class SingleNestedZipNamespacePackage(NamespacePackageTest):
             import foo.two
 
 
+@unittest.skip('namespace packages not supported by zipimport pre-3.3')
 class SeparatedNestedZipNamespacePackages(NamespacePackageTest):
     paths = ['nested_portion1.zip/nested_portion1', 'portion2']
 
@@ -254,6 +258,7 @@ class DynamicPathCalculation(NamespacePackageTest):
         self.assertEqual(parent.child.three.attr, 'parent child three')
 
 
+@unittest.skip('namespace packages not supported by zipimport pre-3.3')
 class ZipWithMissingDirectory(NamespacePackageTest):
     paths = ['missing_directory.zip']
 
