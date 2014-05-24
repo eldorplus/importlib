@@ -117,7 +117,8 @@ class ModuleForLoaderTests(object):
         def fxn(self, module): pass
         wrapped = self.module_for_loader(fxn)
         self.assertEqual(wrapped.__name__, fxn.__name__)
-        self.assertEqual(wrapped.__qualname__, fxn.__qualname__)
+        if hasattr(fxn, '__qualname__'):
+            self.assertEqual(wrapped.__qualname__, fxn.__qualname__)
 
     def test_false_module(self):
         # If for some odd reason a module is considered false, still return it
@@ -220,7 +221,8 @@ class SetPackageTests(object):
             warnings.simplefilter('ignore', DeprecationWarning)
             wrapped = self.util.set_package(fxn)
         self.assertEqual(wrapped.__name__, fxn.__name__)
-        self.assertEqual(wrapped.__qualname__, fxn.__qualname__)
+        if hasattr(fxn, '__qualname__'):
+            self.assertEqual(wrapped.__qualname__, fxn.__qualname__)
 
 Frozen_SetPackageTests, Source_SetPackageTests = test_util.test_both(
         SetPackageTests, util=[frozen_util, source_util])
