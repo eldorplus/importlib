@@ -75,6 +75,15 @@ def _replace_hooks(hooks):
 #################################################
 # fixers
 
+def fix_modules():
+    # See PEP 328
+    # "Relative Imports and Indirection Entries in sys.modules"
+    #   http://legacy.python.org/dev/peps/pep-0328/#id12
+    indirections = [n for n, v in sys.modules.items() if v is None]
+    for name in indirections:
+        del sys.modules[name]
+
+
 def inject_hooks():
     _replace_hooks(sys.path_hooks)
 
@@ -91,6 +100,7 @@ def inject_import_state():
     inject_hooks()
     inject_finders()
     inject_finder_cache()
+    fix_modules()
 
 
 def verify_import_state():

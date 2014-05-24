@@ -42,11 +42,14 @@ def inject_moduletype():
     import importlib2._bootstrap
     types.ModuleType = importlib2._bootstrap._new_module
 
-    for module in sys.modules.values():
+    for name, module in sys.modules.items():
         # XXX How to get better __repr__?
         # Can't set __class__.
         #if module.__class__ is MODULE_TYPE:
         #    module.__class__ = types.ModuleType
+        if module is None:
+            # This entry will be removed later (in _importstate.fix_modules()).
+            continue
         if not hasattr(module, '__spec__'):
             module.__spec__ = None
         if not hasattr(module, '__loader__'):
@@ -384,7 +387,6 @@ def inject_module(mod):
     else:
         spec.loader = _copy_loader(spec.loader)
     # Set them.
-#    from importlib2 import _bootstrap
     mod.__spec__ = spec
     mod.__loader__ = loader
     # XXX Fix __pycache__?
@@ -424,4 +426,6 @@ def verify_module(mod, injected=True):
 
 def verify_modules(injected=True):
     for _, mod in sys.modules.items():
+        if mod is None:
+            continue  # Entry will be removed later in fix_modules().
         verify_module(mod, injected=injected)
