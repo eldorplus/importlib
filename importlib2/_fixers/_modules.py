@@ -9,41 +9,50 @@ from . import builtins
 MODULE_TYPE = type(sys)
 
 
+class _ModuleTypeMeta(type(MODULE_TYPE)):
+    # Metaclass needed since we can't set __class__ on modules.
+    def __instancecheck__(cls, obj):
+        if super(_ModuleTypeMeta, cls).__instancecheck__(obj):
+            return True
+        return isinstance(obj, MODULE_TYPE)
+
+
+class _ModuleType(MODULE_TYPE):
+    def __init__(self, name):
+        name = str(name)  # Coerce for 2.7.
+        super(_ModuleType, self).__init__(name)
+        self.__spec__ = None
+        self.__loader__ = None
+    # Add a __repr__ using bootstrap._module_repr().
+
+
 # destructive but idempotent
-def fix_moduletype(bootstrap):
-    if getattr(bootstrap, 'ModuleType', None) is not None:
+def get_moduletype(bootstrap=None):
+    if bootstrap is None:
+        bootstrap = sys.modules['importlib2._bootstrap']
+
+    ModuleType = getattr(bootstrap, 'ModuleType', None)
+    if ModuleType is not None:
         # Already changed!
-        return
+        return ModuleType
 
-    # Set a custom module type.
-    class ModuleTypeMeta(type(MODULE_TYPE)):
-        # Metaclass needed since we can't set __class__ on modules.
-        def __instancecheck__(cls, obj):
-            if super(ModuleTypeMeta, cls).__instancecheck__(obj):
-                return True
-            return isinstance(obj, MODULE_TYPE)
-    class ModuleType(MODULE_TYPE):
-        def __init__(self, name):
-            name = str(name)
-            super(ModuleType, self).__init__(name)
-            self.__spec__ = None
-            self.__loader__ = None
-        def __repr__(self):
-            return bootstrap._module_repr(self)
-    ModuleTypeFixed = ModuleTypeMeta('ModuleType', (ModuleType,), {})
+    def __repr__(self):
+        return bootstrap._module_repr(self)
 
-    #ModuleType.__module__ = bootstrap.__name__
-    #bootstrap.ModuleType = ModuleType
-    #bootstrap._new_module = ModuleType
-    ModuleTypeFixed.__module__ = bootstrap.__name__
-    bootstrap.ModuleType = ModuleTypeFixed
-    bootstrap._new_module = ModuleTypeFixed
+    # Build a custom module type.
+    #_ModuleTypeMeta = type(MODULE_TYPE)
+    ModuleType = _ModuleTypeMeta('ModuleType',
+                                 (_ModuleType,),
+                                 {'__repr__': bootstrap._module_repr})
+    ModuleType.__module__ = bootstrap.__name__
+    bootstrap.ModuleType = ModuleType
+    return ModuleType
 
 
 # destructive but idempotent
 def inject_moduletype():
     import importlib2._bootstrap
-    types.ModuleType = importlib2._bootstrap._new_module
+    types.ModuleType = importlib2._bootstrap.ModuleType
 
     for name, module in sys.modules.items():
         # XXX How to get better __repr__?

@@ -1,7 +1,22 @@
+import os
 import sys
+import types
 
-from . import swap
-from ._modules import mod_from_ns
+from importlib2._fixers import (swap, SimpleNamespace, new_class,
+                                _thread, builtins)
+from importlib2._fixers._modules import mod_from_ns
+
+
+# Additive but idempotent.
+def fix_builtins(builtins=builtins):
+    sys.modules.setdefault('builtins', builtins)
+
+
+# Additive but idempotent.
+def fix_types(types=types):
+    types.SimpleNamespace = SimpleNamespace
+    types.new_class = new_class
+    return types
 
 
 # Additive but idempotent.
@@ -12,6 +27,25 @@ def fix_collections():
         import collections
         collections.abc = collections
         sys.modules['collections.abc'] = collections
+
+
+# Additive but idempotent.
+def fix_os(os=os):
+    if not hasattr(os, 'fsencode'):
+        os.fsencode = lambda s: s
+    if not hasattr(os, 'fsdecode'):
+        os.fsdecode = lambda s: s
+
+
+# Additive but idempotent.
+def fix_thread(_thread=_thread):
+    sys.modules['_thread'] = _thread
+
+    if not hasattr(_thread, 'TIMEOUT_MAX'):
+        _thread.TIMEOUT_MAX = 10  # XXX Make it accurate.
+
+    if not hasattr(_thread, '_set_sentinel'):
+        _thread._set_sentinel = lambda: _thread.allocate_lock()
 
 
 # Destructive!

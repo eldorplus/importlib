@@ -43,7 +43,7 @@ def inject():
     _modules.verify_modules()
 
 
-def install(_inject=True):
+def install(_inject=False):
     with _locked():
         if _inject:
             inject()

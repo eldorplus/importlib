@@ -18,7 +18,6 @@ import sys
 from ._version import VERSION as __version__
 
 from . import _fixers
-_fixers.fix_importlib(__name__)
 from . import _bootstrap
 _fixers.fix_bootstrap(_bootstrap)
 _bootstrap._setup(sys, _imp)
