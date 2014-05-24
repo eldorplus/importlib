@@ -2108,7 +2108,7 @@ class FileFinder(object):
         path = self.path
         try:
             contents = _os.listdir(path or _os.getcwd())
-        except IOError as e:
+        except (OSError, IOError) as e:
             import errno
             IGNORED = (errno.ENOENT, errno.EACCES, errno.EPERM, errno.ENOTDIR)
             if e.errno not in IGNORED:
