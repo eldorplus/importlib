@@ -36,6 +36,24 @@ else:
     _ImportError = ImportError
 
 
+# Modules to be populated externally (mostly by setup()):
+sys = None
+_imp = None
+_warnings = None
+_thread = None
+_os = None
+_io = None
+_weakref = None
+_winreg = None
+marshal = None
+# Other attrs to be populated externally (mostly by setup()):
+path_sep = None
+path_separators = None
+_relax_case = None
+MAGIC_NUMBER = None
+BYTECODE_SUFFIXES = None
+
+
 # Bootstrap-related code ######################################################
 
 _CASE_INSENSITIVE_PLATFORMS = 'win', 'cygwin', 'darwin'

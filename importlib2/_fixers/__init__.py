@@ -41,6 +41,7 @@ def get_magic():
     except AttributeError:
         if not hasattr(sys, 'implementation'):
             # XXX Should not be necessary!
+            from ._core import fix_sys
             fix_sys(sys)
         sys.implementation.pyc_magic_bytes = imp.get_magic()
         return sys.implementation.pyc_magic_bytes
@@ -128,7 +129,7 @@ def kwonly(names):
 
 
 # Destructive but idempotent.
-def inject_importlib(name, *, _target='importlib2'):
+def inject_importlib(name, _target='importlib2'):
     # for importlib2 and its submodules
     mod = sys.modules[name]
 

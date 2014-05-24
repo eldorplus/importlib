@@ -1,7 +1,5 @@
-from contextlib import contextmanager
 import os.path
 import sys
-import unittest
 
 
 TEST_ROOT = os.path.dirname(__file__)

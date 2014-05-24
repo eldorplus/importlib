@@ -3,8 +3,6 @@
 from . import _fixers
 _fixers.inject_importlib(__name__)
 
-import _imp
-
 from ._bootstrap import (SOURCE_SUFFIXES, DEBUG_BYTECODE_SUFFIXES,
                          OPTIMIZED_BYTECODE_SUFFIXES, BYTECODE_SUFFIXES,
                          EXTENSION_SUFFIXES)

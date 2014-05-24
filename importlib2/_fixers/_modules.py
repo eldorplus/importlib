@@ -1,11 +1,5 @@
-try:
-    from collections.abc import Sequence, Mapping, Set
-except ImportError:
-    from collections import Sequence, Mapping, Set
-from contextlib import contextmanager
 import gc
 import inspect
-import os
 import sys
 import types
 
@@ -390,7 +384,7 @@ def inject_module(mod):
     else:
         spec.loader = _copy_loader(spec.loader)
     # Set them.
-    from importlib2 import _bootstrap
+#    from importlib2 import _bootstrap
     mod.__spec__ = spec
     mod.__loader__ = loader
     # XXX Fix __pycache__?
