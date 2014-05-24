@@ -175,3 +175,10 @@ def fix_bootstrap(bootstrap):
 
     from ._modules import fix_moduletype
     fix_moduletype(bootstrap)
+
+    try:
+        basestring
+    except NameError:
+        pass
+    else:
+        bootstrap.str = basestring

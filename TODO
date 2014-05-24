@@ -1,6 +1,7 @@
 === Phase 1 ===
-* Solve .pyc corruption problem under 3.2.
 * Update to work under 2.7.
+* Ensure 3.4/2.7 .pyc show up in __pycache__.
+* Solve .pyc corruption problem under 3.2.
 * Fix 3 tests in tests/test_importlib/source/test_file_loader.py.
 * Add __future__ to all test modules.
 * Remove bootstrapping-related code.

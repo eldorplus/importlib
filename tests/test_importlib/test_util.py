@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from importlib import util
 from . import util as test_util
 frozen_init, source_init = test_util.import_importlib('importlib')

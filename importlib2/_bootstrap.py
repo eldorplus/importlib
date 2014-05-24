@@ -47,11 +47,12 @@ _weakref = None
 _winreg = None
 marshal = None
 # Other attrs to be populated externally (mostly by setup()):
+MAGIC_NUMBER = None
+BYTECODE_SUFFIXES = None
 path_sep = None
 path_separators = None
 _relax_case = None
-MAGIC_NUMBER = None
-BYTECODE_SUFFIXES = None
+ModuleType = None
 
 
 # Bootstrap-related code ######################################################

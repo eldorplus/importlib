@@ -11,6 +11,7 @@ from ._bootstrap import spec_from_loader
 from ._bootstrap import spec_from_file_location
 from ._bootstrap import _resolve_name
 from ._bootstrap import _find_spec
+from ._bootstrap import _new_module
 
 from contextlib import contextmanager
 import functools
@@ -114,7 +115,7 @@ def _module_to_load(name):
         # This must be done before open() is called as the 'io' module
         # implicitly imports 'locale' and would otherwise trigger an
         # infinite loop.
-        module = type(sys)(name)
+        module = _new_module(name)
         # This must be done before putting the module in sys.modules
         # (otherwise an optimization shortcut in import.c becomes wrong)
         module.__initializing__ = True

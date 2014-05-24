@@ -11,7 +11,7 @@ MODULE_TYPE = type(sys)
 
 # destructive but idempotent
 def fix_moduletype(bootstrap):
-    if types.ModuleType is not MODULE_TYPE:
+    if getattr(bootstrap, 'ModuleType', None) is not None:
         # Already changed!
         return
 
@@ -24,6 +24,7 @@ def fix_moduletype(bootstrap):
             return isinstance(obj, MODULE_TYPE)
     class ModuleType(MODULE_TYPE):
         def __init__(self, name):
+            name = str(name)
             super(ModuleType, self).__init__(name)
             self.__spec__ = None
             self.__loader__ = None
@@ -32,8 +33,10 @@ def fix_moduletype(bootstrap):
     ModuleTypeFixed = ModuleTypeMeta('ModuleType', (ModuleType,), {})
 
     #ModuleType.__module__ = bootstrap.__name__
+    #bootstrap.ModuleType = ModuleType
     #bootstrap._new_module = ModuleType
     ModuleTypeFixed.__module__ = bootstrap.__name__
+    bootstrap.ModuleType = ModuleTypeFixed
     bootstrap._new_module = ModuleTypeFixed
 
 
