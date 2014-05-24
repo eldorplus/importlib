@@ -1,5 +1,5 @@
-from contextlib import contextmanager
 import os
+import shutil
 import sys
 import tempfile
 import types
@@ -30,14 +30,14 @@ def fix_collections():
 
 def fix_tempfile():
     if not hasattr(tempfile, 'TemporaryDirectory'):
-        @contextmanager
-        def temp():
-            dirname = tempfile.mkdtemp()
-            try:
-                yield dirname
-            finally:
-                shutil.rmtree(dirname, ignore_errors=True)
-        tempfile.TemporaryDirectory = temp
+        class TemporaryDirectory(object):
+            def __init__(self):
+                self.name = tempfile.mkdtemp()
+            def __enter__(self):
+                return self
+            def __exit__(self, *args):
+                shutil.rmtree(self.name, ignore_errors=True)
+        tempfile.TemporaryDirectory = TemporaryDirectory
 
 
 def fix_os(os=os):
