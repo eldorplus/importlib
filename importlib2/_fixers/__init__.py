@@ -130,6 +130,8 @@ def kwonly(names):
 # Destructive but idempotent.
 def inject_importlib(name, *, _target='importlib2'):
     # for importlib2 and its submodules
+    mod = sys.modules[name]
+
     if name != _target:
         if not name.startswith(_target+'.'):
             return
@@ -137,11 +139,16 @@ def inject_importlib(name, *, _target='importlib2'):
         if importlib and importlib.__name__ != _target:
             # Only clobber if importlib got clobbered.
             return
+    else:
+        importlib = mod
 
-    mod = sys.modules[name]
     # XXX Copy into existing namespace instead of replacing?
     newname = name.replace('importlib2', 'importlib')
     sys.modules[newname] = mod
+
+    # Keep a reference to _bootstrap so it doesn't get garbage collected.
+    if not hasattr(mod, '_bootstrap'):
+        mod._boostrap = sys.modules['importlib2']._bootstrap
 
 
 #################################################

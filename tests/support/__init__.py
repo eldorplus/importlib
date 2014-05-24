@@ -233,6 +233,7 @@ def import_fresh_module(name, fresh=(), blocked=(), deprecated=False):
                 sys.modules[orig_name] = module
             for name_to_remove in names_to_remove:
                 del sys.modules[name_to_remove]
+        #check_mod(name, mod=fresh_module, orig=orig_modules.get(name))
         return fresh_module
 
 

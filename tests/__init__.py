@@ -15,7 +15,6 @@ import importlib2
 # Fix up the stdlib.
 from importlib2._fixers import _stdlib as _fixers
 _fixers.fix_collections()
-#_fixers.fix_types()
 _fixers.fix_unittest()
 _fixers.inject_threading()
 
@@ -25,6 +24,7 @@ importlib2.hook.inject()
 
 # Swap in tests.
 from . import support
+_fixers.fix_support(support)
 sys.modules['test'] = sys.modules[__name__]
 sys.modules['test.support'] = support
 from . import lock_tests

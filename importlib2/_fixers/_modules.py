@@ -1,8 +1,15 @@
+try:
+    from collections.abc import Sequence, Mapping, Set
+except ImportError:
+    from collections import Sequence, Mapping, Set
 from contextlib import contextmanager
+import gc
 import inspect
 import os
 import sys
 import types
+
+from . import builtins
 
 
 MODULE_TYPE = type(sys)
@@ -53,7 +60,199 @@ def inject_moduletype():
 
 
 #################################################
+# attr lookup helpers
+
+def type_lookup(obj, name):
+    # See _PyType_Lookup from Objects/typeobject.c.
+    # By itself, inspect.getattr_static() (3.2+) isn't enough because we
+    # only want to look at the MRO, not the object and not the metaclasses.
+    # XXX Cache values for each new lookup tree?
+    cls = type(obj)
+
+    # Handle known types.
+    if cls is type or cls is object:
+        # XXX Do this for all builtin types?
+        try:
+            return type.__dict__[name]
+        except KeyError:
+            raise AttributeError(name)
+
+    # Otherwise extract the raw value.
+    for base in cls.__mro__:
+        # ns = base->tp_dict;
+        descr = type.__dict__['__dict__']
+        ns = descr.__get__(base, type)
+        if name in ns:
+            return ns[name]
+    else:
+        raise AttributeError(name)
+
+
+def resolve_from_type(obj, name):
+    raw = type_lookup(obj, name)
+
+    # Resolve any descriptors.
+    if (inspect.ismethoddescriptor(raw) or
+        inspect.isgetsetdescriptor(raw) or
+        inspect.ismemberdescriptor(raw)):
+        getter = raw.__get__
+    else:
+        try:
+            getter = resolve_from_type(raw, '__get__')
+        except AttributeError:
+            # Not a descriptor.
+            return raw
+    return getter(obj, type(obj))
+
+
+def is_special(name, obj=None):
+    # XXX Check against explicit lists (attrs, methods)
+    #  (https://docs.python.org/3.5)
+    # generic:
+    #  /reference/datamodel.html#special-method-names
+    #  /library/unittest.mock.html?highlight=__sizeof__#magic-mock
+    # type-specific (make use of obj?):
+    #  /library/inspect.html#types-and-members
+    #  /library/types.html
+    #  /library/stdtypes.html#dict ("d[key]")
+    #  /library/pickle.html#pickling-class-instances
+    #  /library/copy.html (__copy__ and __deepcopy__)
+
+    return name.startswith('__') and name.endswith('__')
+
+
+def get_special_attr(obj, name):
+    # This is a best effort.
+    # See _PyObject_LookupSpecial from Objects/typeobject.c.
+    if not is_special(name, obj):
+        raise AttributeError('not a special attribute: {!r}'.format(name))
+
+    return resolve_from_type(obj, name)
+
+
+def has_special_attr(obj, name):
+    try:
+        get_special_attr(obj, name)
+    except AttributeError:
+        if not is_special(name, obj):
+            raise
+        return False
+    else:
+        return True
+
+
+def get_container_type(obj):
+    # XXX Return the types from collections.abc?
+    if not has_special_attr(obj, '__contains__'):
+        return None
+    # XXX Skip the __iter__ check?
+    if not has_special_attr(obj, '__iter__'):
+        raise NotImplementedError
+    # XXX Also require __len__?
+
+    if not has_special_attr(obj, '__getitem__'):
+        return 'set'
+    # XXX Is there a better way to distinguish mapping from sequence?
+    try:
+        type_lookup(obj, 'items')
+    except AttributeError:
+        return 'sequence'
+    else:
+        return 'mapping'
+
+
+def iter_where_bound(obj, ignoreframes=True):
+    # return (referrer, binding, kind) where kind in (attr, key, index, element)
+    # Only use "is" test for containment.
+    if obj in builtins.__dict__.values():
+        raise RuntimeError('not what you wanted')
+
+    for referrer in gc.get_referrers(obj):
+        kind = None
+
+        if ignoreframes and inspect.isframe(referrer):
+            # XXX Be more selective?
+            continue
+
+        # Try the 3 container types.
+        container = get_container_type(referrer)
+        if container == 'set':
+            for value in referrer:
+                if value is obj:
+                    kind = 'element'
+                    binding = None
+                    break
+        elif container == 'sequence':
+            for index, value in enumerate(referrer):
+                if value is obj:
+                    kind = 'index'
+                    binding = index
+        elif container == 'mapping':
+            for key, value in referrer.items():
+                if value is obj:
+                    kind = 'key'
+                    binding = key
+            else:
+                for key in referrer:
+                    if key is obj:
+                        kind = 'element'
+                        binding = None
+
+        if kind is None:
+            # Fall back to attributes.
+            for name in dir(referrer):
+                if getattr(referrer, name, None) is obj:
+                    kind = 'attr'
+                    binding = name
+                    break
+            else:
+                # XXX Fall back to referrer.__dict__?
+                pass
+
+        if kind is not None:
+            yield referrer, binding, kind
+
+
+#################################################
 # module helpers
+
+def mod_from_ns(ns):
+    # XXX Support looking up in sys.modules first?
+
+    #try:
+    #    nsname = ns['__name__']
+    #except KeyError:
+    #    return None
+
+    #nsrefs = [obj for obj in gc.get_referrers(ns)
+    #          if getattr(obj, '__globals__', None) is not ns]
+    for obj in gc.get_referrers(ns):
+        if not isinstance(obj, MODULE_TYPE):
+            continue
+        if obj.__dict__ is not ns:
+            continue
+        # XXX Could be others?
+        return obj
+    else:
+        return None
+
+
+def iter_where_from_imported(mod):
+    for name, attr in mod.__dict__.items():
+        for obj, binding, _ in iter_where_bound(attr):
+            if not isinstance(obj, MODULE_TYPE):
+                # XXX Handle function/class-local imports?
+                continue
+            yield name, attr, obj, binding
+
+
+def iter_where_imported(mod, globalonly=True):
+    for obj, binding, _ in iter_where_bound(mod):
+        if globalonly and not isinstance(obj, MODULE_TYPE):
+            continue
+        # XXX Specially handle function/class-local imports?
+        yield obj, binding
+
 
 def _get_parent(mod):
     parent = mod.__name__.rpartition('.')[0]
