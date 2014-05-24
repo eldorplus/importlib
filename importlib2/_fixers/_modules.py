@@ -271,7 +271,8 @@ def _get_parent(mod):
 def _get_path(mod):
     parent = _get_parent(mod)
     if not parent:
-        return sys.path
+        #return sys.path
+        return None
     else:
         return parent.__path__
 

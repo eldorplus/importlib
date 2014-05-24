@@ -1,5 +1,7 @@
+from contextlib import contextmanager
 import os
 import sys
+import tempfile
 import types
 
 from importlib2._fixers import (swap, SimpleNamespace, new_class,
@@ -7,19 +9,16 @@ from importlib2._fixers import (swap, SimpleNamespace, new_class,
 from importlib2._fixers._modules import mod_from_ns
 
 
-# Additive but idempotent.
 def fix_builtins(builtins=builtins):
     sys.modules.setdefault('builtins', builtins)
 
 
-# Additive but idempotent.
 def fix_types(types=types):
     types.SimpleNamespace = SimpleNamespace
     types.new_class = new_class
     return types
 
 
-# Additive but idempotent.
 def fix_collections():
     try:
         import collections.abc
@@ -29,7 +28,18 @@ def fix_collections():
         sys.modules['collections.abc'] = collections
 
 
-# Additive but idempotent.
+def fix_tempfile():
+    if not hasattr(tempfile, 'TemporaryDirectory'):
+        @contextmanager
+        def temp():
+            dirname = tempfile.mkdtemp()
+            try:
+                yield dirname
+            finally:
+                shutil.rmtree(dirname, ignore_errors=True)
+        tempfile.TemporaryDirectory = temp
+
+
 def fix_os(os=os):
     if not hasattr(os, 'fsencode'):
         os.fsencode = lambda s: s
@@ -37,7 +47,6 @@ def fix_os(os=os):
         os.fsdecode = lambda s: s
 
 
-# Additive but idempotent.
 def fix_thread(_thread=_thread):
     sys.modules['_thread'] = _thread
 
@@ -48,7 +57,6 @@ def fix_thread(_thread=_thread):
         _thread._set_sentinel = lambda: _thread.allocate_lock()
 
 
-# Destructive!
 def inject_threading():
     from . import threading
     sys.modules['threading'] = threading
@@ -57,7 +65,6 @@ def inject_threading():
 #################################################
 # testing
 
-# Additive but idempotent.
 def fix_unittest():
     import unittest
 
@@ -125,7 +132,6 @@ def check_mod(module_name, mod=None, orig=None):
             assert bsname is not None, module_name
 
 
-# Additive but idempotent.
 def fix_support(support=None):
     if support is None:
         from tests import support

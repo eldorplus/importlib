@@ -13,6 +13,7 @@ import importlib2
 from ._fixers import _stdlib as _fixers
 _fixers.fix_builtins()
 _fixers.fix_collections()
+_fixers.fix_tempfile()
 _fixers.fix_unittest()
 _fixers.fix_os()
 _fixers.fix_types()
