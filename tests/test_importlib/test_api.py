@@ -408,16 +408,21 @@ class StartupTests(object):
                         self.assertIsNot(module.__loader__, None)
                     elif self.machinery.FrozenImporter.find_module(name):
                         self.assertIsNot(module.__loader__, None)
+                    # XXX All modules should have a valid __loader__.
 
     def test_everyone_has___spec__(self):
         for name, module in sys.modules.items():
             if isinstance(module, types.ModuleType):
                 with self.subTest(name=name):
                     self.assertTrue(hasattr(module, '__spec__'))
+                    if name == '__main__':
+                        if module.__spec__ is None:
+                            continue
                     if self.machinery.BuiltinImporter.find_module(name):
                         self.assertIsNot(module.__spec__, None)
                     elif self.machinery.FrozenImporter.find_module(name):
                         self.assertIsNot(module.__spec__, None)
+                    # XXX All modules should have a valid __spec__.
 
 
 (Frozen_StartupTests,
