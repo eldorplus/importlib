@@ -18,6 +18,33 @@ def swap(obj, attr, value, pop=True):
         setattr(obj, attr, original)
 
 
+def _w_long(x):
+    """Convert a 32-bit integer to little-endian."""
+    x = int(x)
+    int_bytes = []
+    int_bytes.append(x & 0xFF)
+    int_bytes.append((x >> 8) & 0xFF)
+    int_bytes.append((x >> 16) & 0xFF)
+    int_bytes.append((x >> 24) & 0xFF)
+    return bytearray(int_bytes)
+
+
+def _r_long(int_bytes):
+    """Convert 4 bytes in little-endian to an integer."""
+    try:
+        x = ord(int_bytes[0])
+    except TypeError:
+        x = int_bytes[0]
+        x |= int_bytes[1] << 8
+        x |= int_bytes[2] << 16
+        x |= int_bytes[3] << 24
+    else:
+        x |= ord(int_bytes[1]) << 8
+        x |= ord(int_bytes[2]) << 16
+        x |= ord(int_bytes[3]) << 24
+    return x
+
+
 #################################################
 # data external to importlib
 
