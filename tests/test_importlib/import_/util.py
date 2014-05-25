@@ -11,8 +11,9 @@ import unittest
 __import__ = staticmethod(builtins.__import__), staticmethod(source_importlib.__import__)
 
 
-def mock_path_hook(*entries, importer):
+def mock_path_hook(*entries, **kwargs):
     """A mock sys.path_hooks entry."""
+    importer = kwargs['importer']
     def hook(entry):
         if entry not in entries:
             raise ImportError

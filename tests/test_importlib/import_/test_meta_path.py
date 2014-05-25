@@ -6,7 +6,7 @@ import unittest
 import warnings
 
 
-class CallingOrder:
+class CallingOrder(object):
 
     """Calls to the importers on sys.meta_path happen in order that they are
     specified in the sequence, starting with the first importer
@@ -49,7 +49,7 @@ Frozen_CallingOrder, Source_CallingOrder = util.test_both(
         CallingOrder, __import__=util.__import__)
 
 
-class CallSignature:
+class CallSignature(object):
 
     """If there is no __path__ entry on the parent module, then 'path' is None
     [no path]. Otherwise, the value for __path__ is passed in for the 'path'

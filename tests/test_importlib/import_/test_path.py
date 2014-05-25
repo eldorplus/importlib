@@ -11,7 +11,7 @@ import warnings
 import zipimport
 
 
-class FinderTests:
+class FinderTests(object):
 
     """Tests for PathFinder."""
 
@@ -112,7 +112,7 @@ class FinderTests:
                 sys.modules['email'] = email
 
     def test_finder_with_find_module(self):
-        class TestFinder:
+        class TestFinder(object):
             def find_module(self, fullname):
                 return self.to_return
         failing_finder = TestFinder()
@@ -128,7 +128,7 @@ class FinderTests:
         self.assertEqual(spec.loader, __loader__)
 
     def test_finder_with_find_loader(self):
-        class TestFinder:
+        class TestFinder(object):
             loader = None
             portions = []
             def find_loader(self, fullname):
@@ -144,7 +144,7 @@ class FinderTests:
         self.assertEqual(spec.loader, __loader__)
 
     def test_finder_with_find_spec(self):
-        class TestFinder:
+        class TestFinder(object):
             spec = None
             def find_spec(self, fullname, target=None):
                 return self.spec
@@ -162,12 +162,12 @@ Frozen_FinderTests, Source_FinderTests = util.test_both(
         FinderTests, importlib=importlib, machinery=machinery)
 
 
-class PathEntryFinderTests:
+class PathEntryFinderTests(object):
 
     def test_finder_with_failing_find_module(self):
         # PathEntryFinder with find_module() defined should work.
         # Issue #20763.
-        class Finder:
+        class Finder(object):
             path_location = 'test_finder_with_find_module'
             def __init__(self, path):
                 if path != self.path_location:

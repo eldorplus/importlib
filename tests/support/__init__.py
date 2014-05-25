@@ -1,4 +1,5 @@
 """Supporting definitions for the Python regression tests."""
+from __future__ import print_function
 
 import contextlib
 import errno
@@ -128,7 +129,7 @@ def _ignore_deprecated_imports(ignore=True):
         yield
 
 
-def import_module(name, deprecated=False, *, required_on=()):
+def import_module(name, deprecated=False, required_on=()):
     """Import and return the module to be tested, raising SkipTest if
     it is not available.
 
@@ -232,6 +233,7 @@ def import_fresh_module(name, fresh=(), blocked=(), deprecated=False):
                 sys.modules[orig_name] = module
             for name_to_remove in names_to_remove:
                 del sys.modules[name_to_remove]
+        #check_mod(name, mod=fresh_module, orig=orig_modules.get(name))
         return fresh_module
 
 
@@ -789,8 +791,9 @@ elif sys.platform != 'darwin':
         b'\xff'.decode(TESTFN_ENCODING)
     except UnicodeDecodeError:
         # 0xff will be encoded using the surrogate character u+DCFF
-        TESTFN_UNENCODABLE = TESTFN \
-            + b'-\xff'.decode(TESTFN_ENCODING, 'surrogateescape')
+#        TESTFN_UNENCODABLE = TESTFN \
+#            + b'-\xff'.decode(TESTFN_ENCODING, 'surrogateescape')
+        pass  # XXX Fix this?
     else:
         # File system encoding (eg. ISO-8859-* encodings) can encode
         # the byte 0xff. Skip some unicode filename tests.
@@ -1252,7 +1255,7 @@ ioerror_peer_reset = TransientResource(OSError, errno=errno.ECONNRESET)
 
 
 @contextlib.contextmanager
-def transient_internet(resource_name, *, timeout=30.0, errnos=()):
+def transient_internet(resource_name, timeout=30.0, errnos=()):
     """Return a context manager that raises ResourceDenied when various issues
     with the Internet connection manifest themselves as exceptions."""
     default_errnos = [
@@ -1287,7 +1290,8 @@ def transient_internet(resource_name, *, timeout=30.0, errnos=()):
             n in captured_errnos):
             if not verbose:
                 sys.stderr.write(denied.args[0] + "\n")
-            raise denied from err
+            denied.__cause__ = err
+            raise denied
 
     old_timeout = socket.getdefaulttimeout()
     try:
@@ -1527,7 +1531,7 @@ def set_memlimit(limit):
         raise ValueError('Memory limit %r too low to be useful' % (limit,))
     max_memuse = memlimit
 
-class _MemoryWatchdog:
+class _MemoryWatchdog(object):
     """An object which periodically watches the process' memory consumption
     and prints it out.
     """
@@ -1620,7 +1624,7 @@ def bigaddrspacetest(f):
 #=======================================================================
 # unittest integration.
 
-class BasicTestRunner:
+class BasicTestRunner(object):
     def run(self, test):
         result = unittest.TestResult()
         test(result)
@@ -2101,7 +2105,7 @@ def fs_is_case_insensitive(directory):
         os.unlink(base_path)
 
 
-class SuppressCrashReport:
+class SuppressCrashReport(object):
     """Try to prevent a crash report from popping up.
 
     On Windows, don't display the Windows Error Reporting dialog.  On UNIX,
@@ -2219,7 +2223,7 @@ def run_in_subinterp(code):
 
 
 def make_load_tests(modfilename):
-    from tests import TEST_ROOT as topdir
+    from tests import PROJECT_ROOT as topdir
     startdir = os.path.dirname(modfilename)
     def load_tests(loader, tests, pattern):
         pkgtests = loader.discover(startdir, pattern or 'test*.py', topdir)

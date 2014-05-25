@@ -5,6 +5,8 @@ A complete backport to 2.7 (and 3.x) of the ``importlib`` package from
 Python 3.  Compatibility is intended to match only the latest public,
 non-deprecated importlib API.
 
+Note: This project is not yet released and the code base is unstable.
+
 
 Usage
 -----
@@ -17,7 +19,7 @@ the import system.
 API
 ---
 
-See https://docs.python.org/3.5/library/importlib.html.
+See https://docs.python.org/dev/library/importlib.html.
 
 
 Building and Installing

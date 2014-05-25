@@ -7,7 +7,7 @@ import sys
 import unittest
 
 
-class PathHookTests:
+class PathHookTests(object):
 
     """Test the path hook for extension modules."""
     # XXX Should it only succeed for pre-existing directories?

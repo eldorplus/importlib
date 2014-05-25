@@ -3,7 +3,7 @@ from .. import util
 import unittest
 
 
-class ReturnValue:
+class ReturnValue(object):
 
     """The use of fromlist influences what import returns.
 
@@ -32,7 +32,7 @@ Frozen_ReturnValue, Source_ReturnValue = util.test_both(
         ReturnValue, __import__=util.__import__)
 
 
-class HandlingFromlist:
+class HandlingFromlist(object):
 
     """Using fromlist triggers different actions based on what is being asked
     of it.

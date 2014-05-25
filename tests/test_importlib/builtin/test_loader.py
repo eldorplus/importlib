@@ -70,7 +70,7 @@ Frozen_LoaderTests, Source_LoaderTests = util.test_both(LoaderTests,
 
 
 @unittest.skipIf(util.BUILTINS.good_name is None, 'no reasonable builtin module')
-class InspectLoaderTests:
+class InspectLoaderTests(object):
 
     """Tests for InspectLoader methods for BuiltinImporter."""
 
