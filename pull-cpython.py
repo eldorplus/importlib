@@ -13,7 +13,7 @@ COPIED = {'Lib/importlib/': 'importlib2/',
           'Lib/test/lock_tests.py': 'tests/',
           'Lib/test/support/': 'tests/support/',
           'Lib/threading.py': 'tests/_fixers/',
-          'Lib/py_compile.py': 'tests/_fixers/',
+          'Lib/py_compile.py': 'importlib2/_fixers/',
           }
 
 VERSION = load_version()
