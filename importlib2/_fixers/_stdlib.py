@@ -45,4 +45,4 @@ def inject_tokenize():
                     #from . import tokenize
                     from .tokenize import detect_encoding
         #sys.modules['tokenize'] = tokenize
-        tokenize.detect_ecoding = detect_encoding
+        tokenize.detect_encoding = detect_encoding
