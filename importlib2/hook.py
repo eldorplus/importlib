@@ -42,6 +42,9 @@ def inject():
     _importstate.verify_import_state()
     _modules.verify_modules()
 
+    from ._fixers._stdlib import inject_py_compile
+    inject_py_compile()
+
 
 def install(_inject=False):
     with _locked():
