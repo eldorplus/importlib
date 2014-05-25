@@ -1,0 +1,418 @@
+# py2 -m unittest tests.test_importlib &> /tmp/test-results.txt; \
+#  grep -o '(tests\.test_importlib\.[a-z0-9_.]*' /tmp/test-results.txt | sort | uniq -c
+
+     10 tests.test_importlib.source.test_source_encoding
+      8 tests.test_importlib.test_abc
+......................................................................................................................ssss..................................sssssssssssssssss.......s...s...ssssss..............................................EEE.EE.........................................................EEE.EE................................EEE...........................s.......................................................ssssEE.EEE.EE.EEE.......................x..uu......x..uu.....................s............................................................................ss........
+======================================================================
+ERROR: test_decoded_source (tests.test_importlib.test_abc.Frozen_SourceOnlyLGetSourceTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_importlib/test_abc.py", line 928, in test_decoded_source
+    assert source.encode('latin-1') != source.encode('utf-8')
+UnicodeDecodeError: 'ascii' codec can't decode byte 0xc3 in position 21: ordinal not in range(128)
+
+======================================================================
+ERROR: test_default_encoding (tests.test_importlib.test_abc.Frozen_SourceOnlyLGetSourceTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_importlib/test_abc.py", line 919, in test_default_encoding
+    mock.source = source.encode('utf-8')
+UnicodeDecodeError: 'ascii' codec can't decode byte 0xc3 in position 5: ordinal not in range(128)
+
+======================================================================
+ERROR: test_universal_newlines (tests.test_importlib.test_abc.Frozen_SourceOnlyLGetSourceTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_importlib/test_abc.py", line 939, in test_universal_newlines
+    expect = io.IncrementalNewlineDecoder(None, True).decode(source)
+TypeError: decoder should return a string result
+
+======================================================================
+ERROR: test_get_source (tests.test_importlib.test_abc.Frozen_SourceOnlyLTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_importlib/test_abc.py", line 738, in test_get_source
+    self.assertEqual(self.loader.get_source(self.name), expected_source)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1565, in get_source
+    return decode_source(source_bytes)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 719, in decode_source
+    encoding = tokenize.detect_encoding(source_bytes_readline)
+AttributeError: 'module' object has no attribute 'detect_encoding'
+
+======================================================================
+ERROR: test_get_source_encoding (tests.test_importlib.test_abc.Frozen_SourceOnlyLTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_importlib/test_abc.py", line 792, in test_get_source_encoding
+    self.loader.source = source.encode('utf-8')
+UnicodeDecodeError: 'ascii' codec can't decode byte 0xc3 in position 5: ordinal not in range(128)
+
+======================================================================
+ERROR: test_decoded_source (tests.test_importlib.test_abc.Source_SourceOnlyLGetSourceTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_importlib/test_abc.py", line 928, in test_decoded_source
+    assert source.encode('latin-1') != source.encode('utf-8')
+UnicodeDecodeError: 'ascii' codec can't decode byte 0xc3 in position 21: ordinal not in range(128)
+
+======================================================================
+ERROR: test_default_encoding (tests.test_importlib.test_abc.Source_SourceOnlyLGetSourceTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_importlib/test_abc.py", line 919, in test_default_encoding
+    mock.source = source.encode('utf-8')
+UnicodeDecodeError: 'ascii' codec can't decode byte 0xc3 in position 5: ordinal not in range(128)
+
+======================================================================
+ERROR: test_universal_newlines (tests.test_importlib.test_abc.Source_SourceOnlyLGetSourceTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_importlib/test_abc.py", line 939, in test_universal_newlines
+    expect = io.IncrementalNewlineDecoder(None, True).decode(source)
+TypeError: decoder should return a string result
+
+======================================================================
+ERROR: test_get_source (tests.test_importlib.test_abc.Source_SourceOnlyLTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_importlib/test_abc.py", line 738, in test_get_source
+    self.assertEqual(self.loader.get_source(self.name), expected_source)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1565, in get_source
+    return decode_source(source_bytes)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 719, in decode_source
+    encoding = tokenize.detect_encoding(source_bytes_readline)
+AttributeError: 'module' object has no attribute 'detect_encoding'
+
+======================================================================
+ERROR: test_get_source_encoding (tests.test_importlib.test_abc.Source_SourceOnlyLTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_importlib/test_abc.py", line 792, in test_get_source_encoding
+    self.loader.source = source.encode('utf-8')
+UnicodeDecodeError: 'ascii' codec can't decode byte 0xc3 in position 5: ordinal not in range(128)
+
+======================================================================
+ERROR: test_specified_encoding (tests.test_importlib.test_util.Source_DecodeSourceBytesTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_importlib/test_util.py", line 29, in test_specified_encoding
+    self.assertEqual(self.util.decode_source(source_bytes), source)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 719, in decode_source
+    encoding = tokenize.detect_encoding(source_bytes_readline)
+AttributeError: 'module' object has no attribute 'detect_encoding'
+
+======================================================================
+ERROR: test_universal_newlines (tests.test_importlib.test_util.Source_DecodeSourceBytesTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_importlib/test_util.py", line 34, in test_universal_newlines
+    self.assertEqual(self.util.decode_source(source_bytes),
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 719, in decode_source
+    encoding = tokenize.detect_encoding(source_bytes_readline)
+AttributeError: 'module' object has no attribute 'detect_encoding'
+
+======================================================================
+ERROR: test_ut8_default (tests.test_importlib.test_util.Source_DecodeSourceBytesTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_importlib/test_util.py", line 23, in test_ut8_default
+    self.assertEqual(self.util.decode_source(source_bytes), self.source)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 719, in decode_source
+    encoding = tokenize.detect_encoding(source_bytes_readline)
+AttributeError: 'module' object has no attribute 'detect_encoding'
+
+======================================================================
+ERROR: test_bom (tests.test_importlib.source.test_source_encoding.Source_EncodingTestPEP302)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_importlib/source/test_source_encoding.py", line 78, in test_bom
+    self.run_test(codecs.BOM_UTF8 + self.source_line.encode('utf-8'))
+  File "tests/test_importlib/source/test_source_encoding.py", line 44, in run_test
+    return self.load(loader)
+  File "tests/test_importlib/source/test_source_encoding.py", line 107, in load
+    return loader.load_module(self.module_name)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 575, in _check_name_wrapper
+    return method(self, name, *args, **kwargs)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1656, in load_module
+    return super(FileLoader, self).load_module(fullname)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 632, in _load_module_shim
+    return methods.load()
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1259, in load
+    return self._load_unlocked()
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1239, in _load_unlocked
+    self._exec(module)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1168, in _exec
+    self.spec.loader.exec_module(module)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1506, in exec_module
+    code = self.get_code(module.__name__)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1614, in get_code
+    code_object = self.source_to_code(source_bytes, source_path)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1574, in source_to_code
+    dont_inherit=True)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 356, in _call_with_frames_removed
+    return f(*args, **kwds)
+  File "/tmp/tmpS6ih5t/_temp.py", line 1
+    \u00fc = '\u00c9'
+                    ^
+SyntaxError: unexpected character after line continuation character
+
+======================================================================
+ERROR: test_bom_and_utf_8 (tests.test_importlib.source.test_source_encoding.Source_EncodingTestPEP302)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_importlib/source/test_source_encoding.py", line 83, in test_bom_and_utf_8
+    self.run_test(source)
+  File "tests/test_importlib/source/test_source_encoding.py", line 44, in run_test
+    return self.load(loader)
+  File "tests/test_importlib/source/test_source_encoding.py", line 107, in load
+    return loader.load_module(self.module_name)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 575, in _check_name_wrapper
+    return method(self, name, *args, **kwargs)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1656, in load_module
+    return super(FileLoader, self).load_module(fullname)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 632, in _load_module_shim
+    return methods.load()
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1259, in load
+    return self._load_unlocked()
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1239, in _load_unlocked
+    self._exec(module)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1168, in _exec
+    self.spec.loader.exec_module(module)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1506, in exec_module
+    code = self.get_code(module.__name__)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1614, in get_code
+    code_object = self.source_to_code(source_bytes, source_path)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1574, in source_to_code
+    dont_inherit=True)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 356, in _call_with_frames_removed
+    return f(*args, **kwds)
+  File "/tmp/tmptiHsRn/_temp.py", line 2
+    \u00fc = '\u00c9'
+                    ^
+SyntaxError: unexpected character after line continuation character
+
+======================================================================
+ERROR: test_default_encoding (tests.test_importlib.source.test_source_encoding.Source_EncodingTestPEP302)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_importlib/source/test_source_encoding.py", line 63, in test_default_encoding
+    self.run_test(self.source_line.encode('utf-8'))
+  File "tests/test_importlib/source/test_source_encoding.py", line 44, in run_test
+    return self.load(loader)
+  File "tests/test_importlib/source/test_source_encoding.py", line 107, in load
+    return loader.load_module(self.module_name)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 575, in _check_name_wrapper
+    return method(self, name, *args, **kwargs)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1656, in load_module
+    return super(FileLoader, self).load_module(fullname)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 632, in _load_module_shim
+    return methods.load()
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1259, in load
+    return self._load_unlocked()
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1239, in _load_unlocked
+    self._exec(module)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1168, in _exec
+    self.spec.loader.exec_module(module)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1506, in exec_module
+    code = self.get_code(module.__name__)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1614, in get_code
+    code_object = self.source_to_code(source_bytes, source_path)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1574, in source_to_code
+    dont_inherit=True)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 356, in _call_with_frames_removed
+    return f(*args, **kwds)
+  File "/tmp/tmpY5yTCb/_temp.py", line 1
+    \u00fc = '\u00c9'
+                    ^
+SyntaxError: unexpected character after line continuation character
+
+======================================================================
+ERROR: test_encoding_on_first_line (tests.test_importlib.source.test_source_encoding.Source_EncodingTestPEP302)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_importlib/source/test_source_encoding.py", line 69, in test_encoding_on_first_line
+    self.run_test(source)
+  File "tests/test_importlib/source/test_source_encoding.py", line 44, in run_test
+    return self.load(loader)
+  File "tests/test_importlib/source/test_source_encoding.py", line 107, in load
+    return loader.load_module(self.module_name)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 575, in _check_name_wrapper
+    return method(self, name, *args, **kwargs)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1656, in load_module
+    return super(FileLoader, self).load_module(fullname)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 632, in _load_module_shim
+    return methods.load()
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1259, in load
+    return self._load_unlocked()
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1239, in _load_unlocked
+    self._exec(module)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1168, in _exec
+    self.spec.loader.exec_module(module)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1506, in exec_module
+    code = self.get_code(module.__name__)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1614, in get_code
+    code_object = self.source_to_code(source_bytes, source_path)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1574, in source_to_code
+    dont_inherit=True)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 356, in _call_with_frames_removed
+    return f(*args, **kwds)
+  File "/tmp/tmpOzjGHP/_temp.py", line 2
+    \u00fc = '\u00c9'
+                    ^
+SyntaxError: unexpected character after line continuation character
+
+======================================================================
+ERROR: test_encoding_on_second_line (tests.test_importlib.source.test_source_encoding.Source_EncodingTestPEP302)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_importlib/source/test_source_encoding.py", line 74, in test_encoding_on_second_line
+    self.run_test(source)
+  File "tests/test_importlib/source/test_source_encoding.py", line 44, in run_test
+    return self.load(loader)
+  File "tests/test_importlib/source/test_source_encoding.py", line 107, in load
+    return loader.load_module(self.module_name)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 575, in _check_name_wrapper
+    return method(self, name, *args, **kwargs)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1656, in load_module
+    return super(FileLoader, self).load_module(fullname)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 632, in _load_module_shim
+    return methods.load()
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1259, in load
+    return self._load_unlocked()
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1239, in _load_unlocked
+    self._exec(module)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1168, in _exec
+    self.spec.loader.exec_module(module)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1506, in exec_module
+    code = self.get_code(module.__name__)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1614, in get_code
+    code_object = self.source_to_code(source_bytes, source_path)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1574, in source_to_code
+    dont_inherit=True)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 356, in _call_with_frames_removed
+    return f(*args, **kwds)
+  File "/tmp/tmprZ0d7g/_temp.py", line 3
+    \u00fc = '\u00c9'
+                    ^
+SyntaxError: unexpected character after line continuation character
+
+======================================================================
+ERROR: test_bom (tests.test_importlib.source.test_source_encoding.Source_EncodingTestPEP451)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_importlib/source/test_source_encoding.py", line 78, in test_bom
+    self.run_test(codecs.BOM_UTF8 + self.source_line.encode('utf-8'))
+  File "tests/test_importlib/source/test_source_encoding.py", line 44, in run_test
+    return self.load(loader)
+  File "tests/test_importlib/source/test_source_encoding.py", line 96, in load
+    loader.exec_module(module)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1506, in exec_module
+    code = self.get_code(module.__name__)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1614, in get_code
+    code_object = self.source_to_code(source_bytes, source_path)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1574, in source_to_code
+    dont_inherit=True)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 356, in _call_with_frames_removed
+    return f(*args, **kwds)
+  File "/tmp/tmpqpwxrW/_temp.py", line 1
+    \u00fc = '\u00c9'
+                    ^
+SyntaxError: unexpected character after line continuation character
+
+======================================================================
+ERROR: test_bom_and_utf_8 (tests.test_importlib.source.test_source_encoding.Source_EncodingTestPEP451)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_importlib/source/test_source_encoding.py", line 83, in test_bom_and_utf_8
+    self.run_test(source)
+  File "tests/test_importlib/source/test_source_encoding.py", line 44, in run_test
+    return self.load(loader)
+  File "tests/test_importlib/source/test_source_encoding.py", line 96, in load
+    loader.exec_module(module)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1506, in exec_module
+    code = self.get_code(module.__name__)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1614, in get_code
+    code_object = self.source_to_code(source_bytes, source_path)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1574, in source_to_code
+    dont_inherit=True)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 356, in _call_with_frames_removed
+    return f(*args, **kwds)
+  File "/tmp/tmpqQ_04i/_temp.py", line 2
+    \u00fc = '\u00c9'
+                    ^
+SyntaxError: unexpected character after line continuation character
+
+======================================================================
+ERROR: test_default_encoding (tests.test_importlib.source.test_source_encoding.Source_EncodingTestPEP451)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_importlib/source/test_source_encoding.py", line 63, in test_default_encoding
+    self.run_test(self.source_line.encode('utf-8'))
+  File "tests/test_importlib/source/test_source_encoding.py", line 44, in run_test
+    return self.load(loader)
+  File "tests/test_importlib/source/test_source_encoding.py", line 96, in load
+    loader.exec_module(module)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1506, in exec_module
+    code = self.get_code(module.__name__)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1614, in get_code
+    code_object = self.source_to_code(source_bytes, source_path)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1574, in source_to_code
+    dont_inherit=True)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 356, in _call_with_frames_removed
+    return f(*args, **kwds)
+  File "/tmp/tmpOFFDHF/_temp.py", line 1
+    \u00fc = '\u00c9'
+                    ^
+SyntaxError: unexpected character after line continuation character
+
+======================================================================
+ERROR: test_encoding_on_first_line (tests.test_importlib.source.test_source_encoding.Source_EncodingTestPEP451)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_importlib/source/test_source_encoding.py", line 69, in test_encoding_on_first_line
+    self.run_test(source)
+  File "tests/test_importlib/source/test_source_encoding.py", line 44, in run_test
+    return self.load(loader)
+  File "tests/test_importlib/source/test_source_encoding.py", line 96, in load
+    loader.exec_module(module)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1506, in exec_module
+    code = self.get_code(module.__name__)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1614, in get_code
+    code_object = self.source_to_code(source_bytes, source_path)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1574, in source_to_code
+    dont_inherit=True)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 356, in _call_with_frames_removed
+    return f(*args, **kwds)
+  File "/tmp/tmpmQl6Xw/_temp.py", line 2
+    \u00fc = '\u00c9'
+                    ^
+SyntaxError: unexpected character after line continuation character
+
+======================================================================
+ERROR: test_encoding_on_second_line (tests.test_importlib.source.test_source_encoding.Source_EncodingTestPEP451)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/test_importlib/source/test_source_encoding.py", line 74, in test_encoding_on_second_line
+    self.run_test(source)
+  File "tests/test_importlib/source/test_source_encoding.py", line 44, in run_test
+    return self.load(loader)
+  File "tests/test_importlib/source/test_source_encoding.py", line 96, in load
+    loader.exec_module(module)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1506, in exec_module
+    code = self.get_code(module.__name__)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1614, in get_code
+    code_object = self.source_to_code(source_bytes, source_path)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 1574, in source_to_code
+    dont_inherit=True)
+  File "/home/esnow/projects/importlib2/importlib2/_bootstrap.py", line 356, in _call_with_frames_removed
+    return f(*args, **kwds)
+  File "/tmp/tmpB7WJ41/_temp.py", line 3
+    \u00fc = '\u00c9'
+                    ^
+SyntaxError: unexpected character after line continuation character
+
+----------------------------------------------------------------------
+Ran 591 tests in 0.304s
+
+FAILED (errors=23, skipped=37, expected failures=2, unexpected successes=4)
