@@ -11,7 +11,7 @@ import unittest
 
 
 @util.case_insensitive_tests
-class CaseSensitivityTest:
+class CaseSensitivityTest(object):
 
     """PEP 235 dictates that on case-preserving, case-insensitive file systems
     that imports are case-sensitive unless the PYTHONCASEOK environment

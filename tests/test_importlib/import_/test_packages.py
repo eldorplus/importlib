@@ -5,7 +5,7 @@ import importlib
 from test import support
 
 
-class ParentModuleTests:
+class ParentModuleTests(object):
 
     """Importing a submodule should import the parent modules."""
 

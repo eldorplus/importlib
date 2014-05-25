@@ -1,6 +1,7 @@
 """The machinery of importlib: finders, loaders, hooks, etc."""
 
-import _imp
+from . import _fixers
+_fixers.inject_importlib(__name__)
 
 from ._bootstrap import (SOURCE_SUFFIXES, DEBUG_BYTECODE_SUFFIXES,
                          OPTIMIZED_BYTECODE_SUFFIXES, BYTECODE_SUFFIXES,

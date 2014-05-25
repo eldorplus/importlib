@@ -47,7 +47,9 @@ _extension_details()
 def import_importlib(module_name):
     """Import a module from importlib both w/ and w/o _frozen_importlib."""
     module_name = module_name.replace('importlib', 'importlib2')
-    fresh = ('importlib2',) if '.' in module_name else ()
+    fresh = ['importlib']
+    if '.' in module_name:
+        fresh.append('importlib2')
     source = support.import_fresh_module(module_name, fresh=fresh,
                                          blocked=('_frozen_importlib',))
     return source, source
@@ -118,7 +120,7 @@ def uncache(*names):
 
 
 @contextlib.contextmanager
-def temp_module(name, content='', *, pkg=False):
+def temp_module(name, content='', pkg=False):
     conflicts = [n for n in sys.modules if n.partition('.')[0] == name]
     with support.temp_cwd(None) as cwd:
         with uncache(name, *conflicts):
@@ -172,11 +174,12 @@ def import_state(**kwargs):
             setattr(sys, attr, value)
 
 
-class _ImporterMock:
+class _ImporterMock(object):
 
     """Base class to help with creating importer mocks."""
 
-    def __init__(self, *names, module_code={}):
+    def __init__(self, *names, **kwargs):
+        module_code = kwargs.pop('module_code', ())
         self.modules = {}
         self.module_code = {}
         for name in names:
@@ -351,8 +354,9 @@ def create_modules(*names):
         support.rmtree(temp_dir)
 
 
-def mock_path_hook(*entries, importer):
+def mock_path_hook(*entries, **kwargs):
     """A mock sys.path_hooks entry."""
+    importer = kwargs.pop('importer')
     def hook(entry):
         if entry not in entries:
             raise ImportError

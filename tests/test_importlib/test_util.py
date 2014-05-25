@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from importlib import util
 from . import util as test_util
 frozen_init, source_init = test_util.import_importlib('importlib')
@@ -12,7 +14,7 @@ import unittest
 import warnings
 
 
-class DecodeSourceBytesTests:
+class DecodeSourceBytesTests(object):
 
     source = "string ='ü'"
 
@@ -36,7 +38,7 @@ Frozen_DecodeSourceBytesTests, Source_DecodeSourceBytesTests = test_util.test_bo
         DecodeSourceBytesTests, util=[frozen_util, source_util])
 
 
-class ModuleForLoaderTests:
+class ModuleForLoaderTests(object):
 
     """Tests for importlib.util.module_for_loader."""
 
@@ -78,7 +80,7 @@ class ModuleForLoaderTests:
 
     def test_reload(self):
         # Test that a module is reused if already in sys.modules.
-        class FakeLoader:
+        class FakeLoader(object):
             def is_package(self, name):
                 return True
             @self.module_for_loader
@@ -117,13 +119,14 @@ class ModuleForLoaderTests:
         def fxn(self, module): pass
         wrapped = self.module_for_loader(fxn)
         self.assertEqual(wrapped.__name__, fxn.__name__)
-        self.assertEqual(wrapped.__qualname__, fxn.__qualname__)
+        if hasattr(fxn, '__qualname__'):
+            self.assertEqual(wrapped.__qualname__, fxn.__qualname__)
 
     def test_false_module(self):
         # If for some odd reason a module is considered false, still return it
         # from sys.modules.
         class FalseModule(types.ModuleType):
-            def __bool__(self): return False
+            def __len__(self): return False
 
         name = 'mod'
         module = FalseModule(name)
@@ -136,7 +139,7 @@ class ModuleForLoaderTests:
     def test_attributes_set(self):
         # __name__, __loader__, and __package__ should be set (when
         # is_package() is defined; undefined implicitly tested elsewhere).
-        class FakeLoader:
+        class FakeLoader(object):
             def __init__(self, is_package):
                 self._pkg = is_package
             def is_package(self, name):
@@ -165,7 +168,7 @@ Frozen_ModuleForLoaderTests, Source_ModuleForLoaderTests = test_util.test_both(
         ModuleForLoaderTests, util=[frozen_util, source_util])
 
 
-class SetPackageTests:
+class SetPackageTests(object):
 
     """Tests for importlib.util.set_package."""
 
@@ -220,17 +223,18 @@ class SetPackageTests:
             warnings.simplefilter('ignore', DeprecationWarning)
             wrapped = self.util.set_package(fxn)
         self.assertEqual(wrapped.__name__, fxn.__name__)
-        self.assertEqual(wrapped.__qualname__, fxn.__qualname__)
+        if hasattr(fxn, '__qualname__'):
+            self.assertEqual(wrapped.__qualname__, fxn.__qualname__)
 
 Frozen_SetPackageTests, Source_SetPackageTests = test_util.test_both(
         SetPackageTests, util=[frozen_util, source_util])
 
 
-class SetLoaderTests:
+class SetLoaderTests(object):
 
     """Tests importlib.util.set_loader()."""
 
-    class DummyLoader:
+    class DummyLoader(object):
         @util.set_loader
         def load_module(self, module):
             return self.module
@@ -263,19 +267,19 @@ class SetLoaderTests:
             self.assertEqual(42, loader.load_module('blah').__loader__)
 
 class Frozen_SetLoaderTests(SetLoaderTests, unittest.TestCase):
-    class DummyLoader:
+    class DummyLoader(object):
         @frozen_util.set_loader
         def load_module(self, module):
             return self.module
 
 class Source_SetLoaderTests(SetLoaderTests, unittest.TestCase):
-    class DummyLoader:
+    class DummyLoader(object):
         @source_util.set_loader
         def load_module(self, module):
             return self.module
 
 
-class ResolveNameTests:
+class ResolveNameTests(object):
 
     """Tests importlib.util.resolve_name()."""
 
@@ -312,9 +316,9 @@ Frozen_ResolveNameTests, Source_ResolveNameTests = test_util.test_both(
         util=[frozen_util, source_util])
 
 
-class FindSpecTests:
+class FindSpecTests(object):
 
-    class FakeMetaFinder:
+    class FakeMetaFinder(object):
         @staticmethod
         def find_spec(name, path=None, target=None): return name, path, target
 
@@ -457,7 +461,7 @@ class Source_FindSpecTests(FindSpecTests, unittest.TestCase):
     util = source_util
 
 
-class MagicNumberTests:
+class MagicNumberTests(object):
 
     def test_length(self):
         # Should be 4 bytes.
@@ -471,7 +475,7 @@ Frozen_MagicNumberTests, Source_MagicNumberTests = test_util.test_both(
         MagicNumberTests, util=[frozen_util, source_util])
 
 
-class PEP3147Tests:
+class PEP3147Tests(object):
 
     """Tests of PEP 3147-related functions: cache_from_source and source_from_cache."""
 
@@ -524,8 +528,8 @@ class PEP3147Tests:
                          partial_expect + 'c')
         # However if the bool-ishness can't be determined, the exception
         # propagates.
-        class Bearish:
-            def __bool__(self): raise RuntimeError
+        class Bearish(object):
+            def __len__(self): raise RuntimeError
         with self.assertRaises(RuntimeError):
             self.util.cache_from_source('/foo/bar/baz.py', Bearish())
 
