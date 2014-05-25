@@ -14,6 +14,7 @@ COPIED = {'Lib/importlib/': 'importlib2/',
           'Lib/test/support/': 'tests/support/',
           'Lib/threading.py': 'tests/_fixers/',
           'Lib/py_compile.py': 'importlib2/_fixers/',
+          'Lib/tokenize.py': 'importlib2/_fixers/',
           }
 
 VERSION = load_version()
