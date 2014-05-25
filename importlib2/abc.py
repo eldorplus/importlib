@@ -230,6 +230,10 @@ class InspectLoader(Loader):
 
     exec_module = _bootstrap._LoaderBasics.exec_module
     load_module = _bootstrap._LoaderBasics.load_module
+    if hasattr(exec_module, 'im_func'):
+        exec_module = exec_module.im_func
+    if hasattr(load_module, 'im_func'):
+        load_module = load_module.im_func
 
 _register(InspectLoader, machinery.BuiltinImporter, machinery.FrozenImporter)
 
