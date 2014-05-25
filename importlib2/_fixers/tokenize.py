@@ -19,6 +19,7 @@ that it produces COMMENT tokens for comments and gives type OP for all
 operators.  Additionally, all token lists start with an ENCODING token
 which tells you which encoding was used to decode the bytes stream.
 """
+from __future__ import print_function
 
 __author__ = 'Ka-Ping Yee <ping@lfw.org>'
 __credits__ = ('GvR, ESR, Tim Peters, Thomas Wouters, Fred Drake, '

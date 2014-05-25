@@ -27,13 +27,32 @@ _thread = import_safe('_thread', 'thread')  # Will be None if no threading.
 
 
 @contextmanager
-def swap(obj, attr, value, pop=True):
-    original = getattr(obj, attr)
-    setattr(obj, attr, value)
+def swap(obj, attr, value, pop=True, detect=False):
+    getter = getattr
+    setter = setattr
+    exctype = AttributeError
+    if detect and hasattr(obj, 'items'):
+        cls = type(obj)
+        try:
+            getter = cls.__getitem__
+            setter = cls.__setitem__
+        except AttributeError:
+            getter = getattr
+        else:
+            exctype = KeyError
+    try:
+        original = getter(obj, attr)
+    except exctype:
+        original = None
+        restore = False
+    else:
+        restore = True
+    setter(obj, attr, value)
     try:
         yield original if pop else value
     finally:
-        setattr(obj, attr, original)
+        if restore:
+            setter(obj, attr, original)
 
 
 @contextmanager

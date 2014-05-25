@@ -42,8 +42,9 @@ def inject():
     _importstate.verify_import_state()
     _modules.verify_modules()
 
-    from ._fixers._stdlib import inject_py_compile
+    from ._fixers._stdlib import inject_py_compile, inject_tokenize
     inject_py_compile()
+    inject_tokenize()
 
 
 def install(_inject=False):
