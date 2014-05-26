@@ -291,7 +291,13 @@ def _bootstrap_fix_module_type(bootstrap):
 
 def _bootstrap_fix_os(bootstrap):
     # XXX Use a ModuleProxy.
-    _os = sys.modules[os.name]
+    try:
+        _os = sys.modules['posix']
+    except KeyError:
+        try:
+            _os = sys.modules['nt']
+        except KeyError:
+            raise _ImportError('importlib requires posix or nt')
     _os.replace = replace
     return _os
 
