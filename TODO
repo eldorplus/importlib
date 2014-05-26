@@ -12,4 +12,5 @@
 
 === Phase 2 ===
 * Automate backporting (a la https://bitbucket.org/ericsnowcurrently/backport_importlib)?
+* Improve performance where it matters.
 * Pull in others?
