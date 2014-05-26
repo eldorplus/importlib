@@ -115,9 +115,10 @@ except AttributeError:
             return not(self == other)
 
 try:
-    new_class = types.new_class
+    _new_class = types.new_class
 except AttributeError:
     def new_class(name, bases=(), kwds=None, exec_body=None):
+        name = str(name)
         if kwds and 'metaclass' in kwds:
             meta = kwds['metaclass']
         else:
@@ -126,6 +127,10 @@ except AttributeError:
         if exec_body is not None:
             exec_body(ns)
         return meta(name, bases, ns)
+else:
+    def new_class(name, bases=(), kwds=None, exec_body=None):
+        name = str(name)
+        return _new_class(name, bases, kwds, exec_body)
 
 
 try:
