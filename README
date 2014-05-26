@@ -6,6 +6,8 @@ Python 3.  Compatibility is intended to match only the latest public,
 non-deprecated importlib API.
 
 Note: This project is not yet released and the code base is unstable.
+Currently the importlib tests all pass, but something's not quite right
+in practice.
 
 
 Usage
