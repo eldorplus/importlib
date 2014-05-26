@@ -8,6 +8,7 @@
 * Remove deprecated APIs?
 * Ensure docstrings and docs are sufficient.
 * Set up continuous integration (perhaps https://www.shiningpanda-ci.com/ or https://travis-ci.org/).
+* Address any IP concerns.
 * Release 0.1.0.
 
 === Phase 2 ===
