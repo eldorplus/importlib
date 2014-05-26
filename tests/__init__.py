@@ -10,15 +10,15 @@ sys.path.insert(0, PROJECT_ROOT)  # Force the right importlib2.
 import importlib2
 
 # Fix up the stdlib.
-from ._fixers import _stdlib as _fixers
-_fixers.fix_builtins()
-_fixers.fix_collections()
-_fixers.fix_tempfile()
-_fixers.fix_unittest()
-_fixers.fix_os()
-_fixers.fix_types()
-_fixers.fix_thread()
-_fixers.inject_threading()
+from ._fixers import _stdlib
+_stdlib.fix_builtins()
+_stdlib.fix_collections()
+_stdlib.fix_tempfile()
+_stdlib.fix_unittest()
+_stdlib.fix_os()
+_stdlib.fix_types()
+_stdlib.fix_thread()
+_stdlib.inject_threading()
 
 # Inject importlib and __import__.
 import importlib2.hook
@@ -27,8 +27,12 @@ importlib2.hook.install()
 
 # Swap in tests.
 from . import support
-_fixers.fix_support(support)
+_stdlib.fix_support(support)
 sys.modules['test'] = sys.modules[__name__]
 sys.modules['test.support'] = support
 from . import lock_tests
 sys.modules['test.lock_tests'] = lock_tests
+
+# Fix specific tests.
+from ._fixers import _tests
+_tests.fix_test_source_encodings()

@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from .. import util
 
 machinery = util.import_importlib('importlib.machinery')
