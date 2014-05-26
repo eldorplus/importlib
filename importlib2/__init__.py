@@ -22,6 +22,9 @@ from . import _bootstrap
 _fixers.fix_bootstrap(_bootstrap)
 _bootstrap._setup(sys, _imp)
 
+#from .hook import inject as _inject
+#_inject()
+
 # To simplify imports in test code
 _w_long = _bootstrap._w_long
 _r_long = _bootstrap._r_long
