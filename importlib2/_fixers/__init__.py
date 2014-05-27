@@ -213,8 +213,8 @@ def make_impl(name=None, version=None, cache_tag=None):
                                                        releaselevel[0], serial)
         hexversion = int(hexversion, 16)
     if cache_tag is None:
-        # XXX Change to reflect injection?
-        cache_tag = '{}-{}{}'.format(name, major, minor)
+        #cache_tag = '{}-{}{}'.format(name, major, minor)
+        cache_tag = '{}-{}{}-importlib2'.format(name, major, minor)
 
     impl = SimpleNamespace()
     impl.name = name
