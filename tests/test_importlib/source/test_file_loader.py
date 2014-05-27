@@ -337,7 +337,7 @@ class BadBytecodeTest(object):
                                                 lambda bc: bc[:12] + b'<test>',
                                                 del_source=del_source)
             file_path = mapping['_temp'] if not del_source else bytecode_path
-            with self.assertRaises(EOFError):
+            with self.assertRaises((EOFError, ValueError)):
                 self.import_(file_path, '_temp')
 
     def _test_bad_magic(self, test, del_source=False):
@@ -434,19 +434,16 @@ class SourceLoaderBadBytecodeTest(object):
 
         self._test_partial_size(test)
 
-    @unittest.expectedFailure  # XXX Fix this!
     @util.writes_bytecode_files
     def test_no_marshal(self):
         # When there is only the magic number and timestamp, raise EOFError.
         self._test_no_marshal()
 
-    @unittest.expectedFailure  # XXX Fix this!
     @util.writes_bytecode_files
     def test_non_code_marshal(self):
         self._test_non_code_marshal()
         # XXX ImportError when sourceless
 
-    @unittest.expectedFailure  # XXX Fix this!
     # [bad marshal]
     @util.writes_bytecode_files
     def test_bad_marshal(self):
