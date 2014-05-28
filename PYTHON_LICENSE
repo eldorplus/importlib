@@ -25,6 +25,7 @@ hg diff -r clean-cpython -r default importlib2/__init__.py \
                                     importlib2/_fixers/py_compile.py \
                                     importlib2/_fixers/tokenize.py \
                                     tests/support/__init__.py \
+                                    tests/lock_tests.py \
                                     tests/test_importlib \
                                     tests/_fixers/threading.py
 
