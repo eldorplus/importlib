@@ -127,10 +127,10 @@ tracker:
 https://bitbucket.org/ericsnowcurrently/importlib2/issues
 
 If that doesn't fit, you can either take the matter to the
-import-sig@python.org mailing list or email me directly at
+import-sig@python.org `mailing list`_ or email me directly at
 ericsnowcurrent@gmail.com.
 
-.. _import-sig@python.org mailing list: https://mail.python.org/mailman/listinfo/import-sig
+.. _mailing list: https://mail.python.org/mailman/listinfo/import-sig
 
 
 Acknowledgements
