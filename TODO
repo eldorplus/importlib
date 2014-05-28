@@ -1,15 +1,15 @@
-=== 0.1.0 ===
+=== 3.5.0.0 ===
 * Address any IP concerns.
 * Add importlib2-specific tests.
 * Document which APIs require calling inject() first (add a check to those APIs?).
 * Ensure docstrings and docs are sufficient.
+* Move to-do items into bitbucket tracker.
 
-=== 0.9.0 ===
+=== 3.5.0.1 ===
 * Solve "utf-32-be" codec looup problem under 3.2.
 * Don't expose the fixers for _os and _imp.
 * Pull more changes out of importlib2 and into fixers (to reduce the diff from upstream).
 * Set up continuous integration (perhaps https://www.shiningpanda-ci.com/ or https://travis-ci.org/).
-* Move to-do items into bitbucket tracker.
 
 === Others ===
 * Forward-port some fixes into importlib?
