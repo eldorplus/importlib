@@ -5,9 +5,13 @@ A complete backport to 2.7 (and 3.x) of the ``importlib`` package from
 Python 3.  Compatibility is intended to match only the latest public,
 non-deprecated importlib API.
 
-Note: This project is not yet released and the code base is unstable.
-Currently the importlib tests all pass, but something's not quite right
-in practice.
+Note: This project is not yet released and the code base may be
+unstable.  Currently the importlib tests all pass, but a few things
+remain to be done before the initial release.
+
+Note: Currently there is a problem under Python 3.2 with loading
+modules from .pyc files.  However, this does not affect 2.7, which is
+the main target for importlib2.
 
 
 Usage
