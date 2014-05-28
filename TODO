@@ -13,5 +13,5 @@
 
 === Others ===
 * Forward-port some fixes into importlib?
-* Automate backporting (a la https://bitbucket.org/ericsnowcurrently/backport_importlib)?
+* Automate the merge process (a la https://bitbucket.org/ericsnowcurrently/backport_importlib)?
 * Improve performance where it matters (it probably doesn't).
