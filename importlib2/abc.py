@@ -334,3 +334,6 @@ class SourceLoader(_bootstrap.SourceLoader, ResourceLoader, ExecutionLoader):
         """
 
 _register(SourceLoader, machinery.SourceFileLoader)
+
+
+_fixers.fix_importlib(globals())

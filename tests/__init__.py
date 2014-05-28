@@ -1,9 +1,12 @@
+import imp
 import os.path
 import sys
 
 
 TEST_ROOT = os.path.dirname(__file__)
 PROJECT_ROOT = os.path.dirname(TEST_ROOT)
+
+imp._testing_importlib2 = True
 
 # Swap in importlib2.
 sys.path.insert(0, PROJECT_ROOT)  # Force the right importlib2.

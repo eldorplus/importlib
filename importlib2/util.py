@@ -296,3 +296,6 @@ class LazyLoader(abc.Loader):
         # trying to access module.__spec__.
         module.__spec__.loader_state = module.__dict__.copy()
         module.__class__ = _LazyModule
+
+
+_fixers.fix_importlib(globals())

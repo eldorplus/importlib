@@ -357,3 +357,39 @@ def fix_bootstrap(bootstrap):
     # Do remaining fixes in _setup().
     inject = _bootstrap_dependencies(bootstrap)
     bootstrap._setup = _bootstrap_wrap_setup(bootstrap, inject)
+
+
+def fix_importlib(ns):
+    if not getattr(imp, '_testing_importlib2', None):
+        # Remove deprecated APIs.
+        name = ns['__name__']
+        if name == 'importlib2':
+            del ns['find_loader']
+        elif name == 'importlib2.abc':
+            del ns['Finder'].find_module
+            del ns['MetaPathFinder'].find_module
+            del ns['PathEntryFinder'].find_loader
+            del ns['PathEntryFinder'].find_module
+            del ns['Loader'].load_module
+            del ns['Loader'].module_repr
+            del ns['InspectLoader'].load_module
+        elif name == 'importlib2.machinery':
+            del ns['BuiltinImporter'].find_module
+            #del ns['BuiltinImporter'].load_module
+            del ns['BuiltinImporter'].module_repr
+            del ns['FrozenImporter'].find_module
+            del ns['FrozenImporter'].load_module
+            del ns['FrozenImporter'].module_repr
+            del ns['WindowsRegistryFinder'].find_module
+            del ns['_LoaderBasics'].load_module
+            del ns['FileLoader'].load_module
+            #del ns['ExtensionFileLoader'].load_module
+            del ns['_NamespaceLoader'].load_module
+            del ns['_NamespaceLoader'].module_repr
+            del ns['PathFinder'].find_module
+            del ns['FileFinder'].find_loader
+            del ns['FileFinder'].find_module
+        elif name == 'importlib2.util':
+            del ns['set_package']
+            del ns['set_loader']
+            del ns['module_for_loader']

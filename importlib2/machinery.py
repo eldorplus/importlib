@@ -20,3 +20,6 @@ from ._bootstrap import ExtensionFileLoader
 def all_suffixes():
     """Returns a list of all recognized module suffixes for this process"""
     return SOURCE_SUFFIXES + BYTECODE_SUFFIXES + EXTENSION_SUFFIXES
+
+
+_fixers.fix_importlib(globals())
