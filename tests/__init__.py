@@ -6,6 +6,20 @@ import sys
 TEST_ROOT = os.path.dirname(__file__)
 PROJECT_ROOT = os.path.dirname(TEST_ROOT)
 
+
+def make_load_tests(modfilename):
+    topdir = PROJECT_ROOT
+    startdir = os.path.dirname(modfilename)
+    def load_tests(loader, tests, pattern):
+        pkgtests = loader.discover(startdir, pattern or 'test*.py', topdir)
+        tests.addTests(pkgtests)
+        return tests
+    return load_tests
+
+
+#################################################
+# Fix up tests and inject importlib2.
+
 imp._testing_importlib2 = True
 
 # Swap in importlib2.

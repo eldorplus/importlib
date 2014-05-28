@@ -9,7 +9,8 @@ def test_suite():
     return test.test_suite('importlib.test.source', directory)
 
 
-load_tests = support.make_load_tests(__file__)
+from tests import make_load_tests
+load_tests = make_load_tests(__file__)
 
 
 if __name__ == '__main__':

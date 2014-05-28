@@ -3,6 +3,7 @@ import sys
 from test import support
 import unittest
 
+
 def test_suite(package=__package__, directory=os.path.dirname(__file__)):
     suite = unittest.TestSuite()
     for name in os.listdir(directory):
@@ -33,4 +34,5 @@ def test_main():
     support.run_unittest(test_loader.discover(start_dir, top_level_dir=top_dir))
 
 
-load_tests = support.make_load_tests(__file__)
+from tests import make_load_tests
+load_tests = make_load_tests(__file__)

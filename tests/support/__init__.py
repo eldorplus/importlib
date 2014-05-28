@@ -2220,13 +2220,3 @@ def run_in_subinterp(code):
                                      "memory allocations")
     import _testcapi
     return _testcapi.run_in_subinterp(code)
-
-
-def make_load_tests(modfilename):
-    from tests import PROJECT_ROOT as topdir
-    startdir = os.path.dirname(modfilename)
-    def load_tests(loader, tests, pattern):
-        pkgtests = loader.discover(startdir, pattern or 'test*.py', topdir)
-        tests.addTests(pkgtests)
-        return tests
-    return load_tests
