@@ -27,6 +27,8 @@ API
 
 See https://docs.python.org/dev/library/importlib.html.
 
+Be aware that deprecated importlib APIs have not been backported.
+
 
 Building and Installing
 -----------------------
