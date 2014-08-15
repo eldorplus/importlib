@@ -45,7 +45,7 @@ CLASSIFIERS = [
         'Topic :: Software Development :: Libraries',
         ]
 
-with open(os.path.join(PROJECT_ROOT, 'README')) as readme_file:
+with open(os.path.join(PROJECT_ROOT, 'README.rst')) as readme_file:
      DESCRIPTION = readme_file.read()
 
 

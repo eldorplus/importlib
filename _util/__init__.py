@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import os.path as os_path
 import re
 import sys
@@ -33,7 +35,7 @@ def read_py_version(source):
             raise RuntimeError('unable to find Python version')
 
 
-def verify_release_branch(*, _release_prefix='release-'):
+def verify_release_branch(_release_prefix='release-'):
     branch = repo_branch()
     if branch != 'default' and not branch.startswith(_release_prefix):
         raise RuntimeError('not a release branch: {!r}'.format(branch))
