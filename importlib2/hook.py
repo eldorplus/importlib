@@ -15,6 +15,7 @@ def _locked():
 # install
 
 __original_import__ = None
+__installed__ = False
 
 
 def _install___import__():
@@ -48,7 +49,11 @@ def inject():
 
 
 def install(_inject=False):
+    global __installed__
+    if __installed__:
+        return
     with _locked():
         if _inject:
             inject()
         _install___import__()
+        __installed__ = True
