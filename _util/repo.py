@@ -8,88 +8,115 @@ import subprocess
 from .os import pushd
 
 
-def _repo_cmd(cmd, dirname):
-    # XXX sanitize dirname?
-    with pushd(dirname):
-        output = subprocess.check_output(cmd, shell=True)
-    return output.decode().strip()
+class RepoNotFoundError(Exception):
+    pass
 
 
-def repo_branch(dirname=None):
-    if dirname is None:
-        dirname = '.'
-    cmd = 'hg branch'
-    return _repo_cmd(cmd, dirname)
+class Repo(object):
 
+    BRANCH = None
 
-def repo_root(dirname=None):
-    if dirname is None:
-        dirname = '.'
-    cmd = 'hg root'
-    return _repo_cmd(cmd, dirname)
+    COMMAND = None
+    COMMANDS = {}
 
-
-def repo_listdir(dirname):
-    cmd = 'hg status -n -c .'
-    output = _repo_cmd(cmd, dirname)
-    return output.splitlines()
-
-
-def repo_revision(dirname):
-    cmd = 'hg id -i'
-    return _repo_cmd(cmd, dirname)
-
-
-def _copy_file(filename, source, target, verbose, dryrun):
-    if isinstance(filename, str):
-        sfilename = filename
-        tfilename = filename
-    else:
-        sfilename, tfilename = filename
-    spath = os.path.join(source, sfilename)
-    tpath = os.path.join(target, tfilename)
-
-    if verbose:
-        if sfilename == tfilename:
-            print(sfilename)
-        else:
-            print('{} -> {}'.format(sfilename, tfilename))
-
-    if not dryrun:
+    def __getattr__(self, name):
         try:
-            os.makedirs(target)
-        except OSError:
-            pass
-        shutil.copy2(spath, tpath)
+            args = self.COMMANDS[name]
+        except KeyError:
+            raise AttributeError(name)
+        return lambda dirname=None: self._cmd(name, dirname)
+
+    def _cmd(self, cmd, dirname=None):
+        # XXX sanitize dirname?
+        if dirname is None:
+            dirname = '.'
+        try:
+            args = self.COMMANDS[cmd]
+        except KeyError:
+            raise NotImplementedError(cmd)
+        cmd = '{} {}'.format(self.COMMAND, args)
+        with pushd(dirname):
+            try:
+                output = subprocess.check_output(cmd, shell=True)
+            except subprocess.CalledProcessError as e:
+                if self._repo_not_found(e):
+                    raise RepoNotFoundError
+                raise
+        return output.decode().strip()
+
+    def listdir(dirname=None):
+        output = self._cmd('listdir', dirname)
+        return output.splitlines()
+
+    def _copy_file(self, filename, source, target, verbose, dryrun):
+        if isinstance(filename, str):
+            sfilename = filename
+            tfilename = filename
+        else:
+            sfilename, tfilename = filename
+        spath = os.path.join(source, sfilename)
+        tpath = os.path.join(target, tfilename)
+
+        if verbose:
+            if sfilename == tfilename:
+                print(sfilename)
+            else:
+                print('{} -> {}'.format(sfilename, tfilename))
+
+        if not dryrun:
+            try:
+                os.makedirs(target)
+            except OSError:
+                pass
+            shutil.copy2(spath, tpath)
+
+    def _copy_files(self, source, target, verbose, dryrun, filenames):
+        source = os.path.abspath(source) + os.path.sep
+        target = os.path.abspath(target) + os.path.sep
+        if verbose:
+            print('------------------------------')
+            print(source)
+            print('  to')
+            print(target)
+            print('------------------------------')
+        for filename in filenames:
+            self._copy_file(filename, source, target, verbose, dryrun)
+
+    def copytree(self, source, target, verbose=True, dryrun=False):
+        filenames = self.listdir(source)
+        self._copy_files(source, target, verbose, dryrun, filenames)
+
+    def copyfile(self, source, target, verbose=True, dryrun=False):
+        sfilename = os.path.basename(source)
+        source = os.path.dirname(source)
+
+        if target.endswith('/'):
+            filenames = [sfilename]
+        else:
+            tfilename = os.path.basename(target)
+            filenames = [(sfilename, tfilename)]
+            target = os.path.dirname(target)
+
+        self._copy_files(source, target, verbose, dryrun, filenames)
 
 
-def _copy_files(source, target, verbose, dryrun, filenames):
-    source = os.path.abspath(source) + os.path.sep
-    target = os.path.abspath(target) + os.path.sep
-    if verbose:
-        print('------------------------------')
-        print(source)
-        print('  to')
-        print(target)
-        print('------------------------------')
-    for filename in filenames:
-        _copy_file(filename, source, target, verbose, dryrun)
+class HGRepo(Repo):
+
+    BRANCH = 'default'
+
+    COMMAND = 'hg'
+    COMMANDS = {'branch': 'branch',
+                'root': 'root',
+                'listdir': 'status -n -c .',
+                'revision': 'id -i',
+                }
 
 
-def repo_copytree(source, target, verbose=True, dryrun=False):
-    filenames = repo_listdir(source)
-    _copy_files(source, target, verbose, dryrun, filenames)
+class GitRepo(Repo):
 
+    BRANCH = 'master'
 
-def repo_copyfile(source, target, verbose=True, dryrun=False):
-    sfilename = os.path.basename(source)
-    source = os.path.dirname(source)
-
-    if target.endswith('/'):
-        filenames = [sfilename]
-    else:
-        tfilename = os.path.basename(target)
-        filenames = [(sfilename, tfilename)]
-        target = os.path.dirname(target)
-
-    _copy_files(source, target, verbose, dryrun, filenames)
+    COMMAND = 'git'
+    COMMANDS = {'branch': 'rev-parse --abbrev-ref HEAD',
+                'root': 'rev-parse --show-toplevel',
+                }

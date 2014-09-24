@@ -4,7 +4,7 @@ import os.path as os_path
 import re
 import sys
 
-from .repo import repo_branch
+from .repo import HGRepo, GitRepo, RepoNotFoundError
 
 
 UTIL_ROOT = os_path.abspath(os_path.dirname(__file__))
@@ -36,6 +36,11 @@ def read_py_version(source):
 
 
 def verify_release_branch(_release_prefix='release-'):
-    branch = repo_branch()
-    if branch != 'default' and not branch.startswith(_release_prefix):
+    try:
+        repo = HGRepo()
+        branch = repo.branch()
+    except RepoNotFoundError:
+        repo = GitRepo()
+        branch = repo.branch()
+    if branch != repo.BRANCH and not branch.startswith(_release_prefix):
         raise RuntimeError('not a release branch: {!r}'.format(branch))
