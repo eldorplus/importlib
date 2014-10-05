@@ -2,10 +2,13 @@ from distutils.core import setup
 import os.path
 
 import _util
-_util.verify_release_branch()
 
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+RELEASING = os.path.exists(os.path.join(PROJECT_ROOT, "MANIFEST.in"))
+
+if RELEASING:
+    _util.verify_release_branch()
 
 vers = _util.load_version()
 
