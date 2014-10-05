@@ -1,3 +1,4 @@
 include LICENSE
 include PYTHON_LICENSE
+include README.rst
 include _util/*.py
