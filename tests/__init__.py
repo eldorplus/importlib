@@ -40,7 +40,7 @@ _stdlib.inject_threading()
 # Inject importlib and __import__.
 import importlib2.hook
 importlib2.hook.inject()
-importlib2.hook.install()
+importlib2.hook.install(_inject=False)
 
 # Swap in tests.
 from . import support

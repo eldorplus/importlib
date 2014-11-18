@@ -48,7 +48,7 @@ def inject():
     inject_tokenize()
 
 
-def install(_inject=False):
+def install(_inject=True):
     global __installed__
     if __installed__:
         return
