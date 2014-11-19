@@ -26,6 +26,11 @@ def _install___import__():
     __original_import__ = builtins.__import__
     builtins.__import__ = importlib___import__
 
+    import sys
+    if sys.version_info[0] == 2:
+        implicit = importlib___import__.__defaults__[:-1] + (-1,)
+        importlib___import__.__defaults__ = implicit
+
 
 def inject():
     from ._fixers import inject_importlib, _modules, _importstate

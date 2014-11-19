@@ -2394,7 +2394,18 @@ def __import__(name, globals=None, locals=None, fromlist=(), level=0):
     else:
         globals_ = globals if globals is not None else {}
         package = _calc___package__(globals_)
-        module = _gcd_import(name, package, level)
+        if level < 0 and sys.version_info[0] < 3:
+            if package:
+                # Try implicit relative import first.
+                try:
+                    module = _gcd_import(package + '.' + name)
+                except ImportError:
+                    # Fall back to absolute import (level 0).
+                    module = _gcd_import(name)
+            else:
+                module = _gcd_import(name)
+        else:
+            module = _gcd_import(name, package, level)
     if not fromlist:
         # Return up to the first dot in 'name'. This is complicated by the fact
         # that 'name' may be relative.
