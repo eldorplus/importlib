@@ -2409,7 +2409,7 @@ def __import__(name, globals=None, locals=None, fromlist=(), level=0):
     if not fromlist:
         # Return up to the first dot in 'name'. This is complicated by the fact
         # that 'name' may be relative.
-        if level == 0:
+        if level <= 0:
             return _gcd_import(name.partition('.')[0])
         elif not name:
             return module
